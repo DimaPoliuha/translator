@@ -1,7 +1,5 @@
 import re
-import csv
 from lexical_analyzer.regex_patterns import regex_patterns
-from lexical_analyzer.tokens_identifiers import tokens_identifiers
 from lexical_analyzer.create_tables_files import create_tables_files
 from lexical_analyzer.create_tables_dir import create_tables_dir
 from lexical_analyzer.add_token import add_token
