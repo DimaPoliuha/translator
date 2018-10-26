@@ -4,45 +4,17 @@ from lexical_analyzer.regex_patterns import regex_patterns
 from lexical_analyzer.tokens_identifiers import tokens_identifiers
 from lexical_analyzer.create_tables_files import create_tables_files
 from lexical_analyzer.create_tables_dir import create_tables_dir
+from lexical_analyzer.add_token import add_token
 
 root_dir = './'
 tables_path = root_dir + 'tables/'
 
 program_file_name = 'program'
 
-announcements_block = True
-
-
-def add_token(tok, token_type):
-    global announcements_block
-    if token == 'begin':
-        announcements_block = False
-
-    with open(tables_path + program_file_name + '/tokens.csv', 'a', newline='') as f:
-        writer = csv.writer(f)
-
-        if token_type == 'IDN':
-            writer.writerow([tokens_count, line, tok, 'id', '', '', 100])
-            with open(tables_path + program_file_name + '/IDN.csv', 'a', newline='') as file_identifiers:
-                writer_identifiers = csv.writer(file_identifiers)
-                writer_identifiers.writerow([idn_count, tok, 'type', 'value'])
-        elif token_type == 'CON':
-            writer.writerow([tokens_count, line, tok, '', 'id', '', 101])
-            with open(tables_path + program_file_name + '/CONST.csv', 'a', newline='') as file_constants:
-                writer_constants = csv.writer(file_constants)
-                writer_constants.writerow([con_count, tok, 'type'])
-        elif token_type == 'LAB':
-            writer.writerow([tokens_count, line, tok, '', '', 'id', 102])
-            with open(tables_path + program_file_name + '/LAB.csv', 'a', newline='') as file_labels:
-                writer_labels = csv.writer(file_labels)
-                writer_labels.writerow([lab_count, tok])
-        else:
-            writer.writerow([tokens_count, line, tok, '', '', '', 'id'])
-
 
 def generate_tokens():
-    create_tables_dir(program_file_name, tables_path)
-    create_tables_files(program_file_name, tables_path)
+    create_tables_dir(program_file_name)
+    create_tables_files(program_file_name)
     # file to read program
     with open(root_dir + program_file_name + '.txt', 'r') as f:
         program = [row.strip() for row in f]
@@ -58,15 +30,6 @@ def generate_tokens():
     global token
     token = ''
     global char
-
-    global tokens_count
-    tokens_count = 0
-    global con_count
-    con_count = 0
-    global idn_count
-    idn_count = 0
-    global lab_count
-    lab_count = 0
 
     while True:
         # if we reached EOL or blank line
@@ -124,8 +87,8 @@ def generate_tokens():
 
                 elif re.match(regex_patterns['single_separator'], char):
                     token += char
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
                     hasToRead = True
 
@@ -164,9 +127,9 @@ def generate_tokens():
                     token += char
                     i += 1
                 else:
-                    add_token(token, 'IDN')
-                    idn_count += 1
-                    tokens_count += 1
+                    add_token(token, 'IDN', program_file_name, line)
+                    
+                    
                     state = 1
                     token = ''
 
@@ -185,9 +148,9 @@ def generate_tokens():
                     token += char
                     i += 1
                 else:
-                    add_token(token, 'LAB')
-                    lab_count += 1
-                    tokens_count += 1
+                    add_token(token, 'LAB', program_file_name, line)
+                    
+                    
                     state = 1
                     token = ''
 
@@ -200,9 +163,9 @@ def generate_tokens():
                     i += 1
                     state = 6
                 else:
-                    add_token(token, 'CON')
-                    con_count += 1
-                    tokens_count += 1
+                    add_token(token, 'CON', program_file_name, line)
+                    
+                    
                     state = 1
                     token = ''
 
@@ -211,9 +174,9 @@ def generate_tokens():
                     token += char
                     i += 1
                 else:
-                    add_token(token, 'CON')
-                    con_count += 1
-                    tokens_count += 1
+                    add_token(token, 'CON', program_file_name, line)
+                    
+                    
                     state = 1
                     token = ''
 
@@ -231,20 +194,20 @@ def generate_tokens():
                 if re.match(regex_patterns['more'], char):
                     token += char
                     i += 1
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
                     token = ''
                 elif re.match(regex_patterns['equal'], char):
                     token += char
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
 
                     hasToRead = True
                 else:
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
                     token = ''
 
@@ -252,42 +215,42 @@ def generate_tokens():
                 if re.match(regex_patterns['less'], char):
                     token += char
                     i += 1
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
                     token = ''
                 elif re.match(regex_patterns['equal'], char):
                     token += char
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
 
                     hasToRead = True
                 else:
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
                     token = ''
 
             elif state == 10:
                 if re.match(regex_patterns['equal'], char):
                     token += char
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
 
                     hasToRead = True
                 else:
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
                     token = ''
 
             elif state == 11:
                 if re.match(regex_patterns['equal'], char):
                     token += char
-                    add_token(token, 'TOK')
-                    tokens_count += 1
+                    add_token(token, 'TOK', program_file_name, line)
+                    
                     state = 1
 
                     hasToRead = True
