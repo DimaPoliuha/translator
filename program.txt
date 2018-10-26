@@ -1,0 +1,9 @@
+int a;
+int d;
+int sum;
+
+begin
+a = 1.2;
+d = .7;
+#f:
+    sum = a / d;
