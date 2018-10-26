@@ -8,7 +8,6 @@ from lexical_analyzer.add_token import add_token
 
 root_dir = './'
 tables_path = root_dir + 'tables/'
-
 program_file_name = 'program'
 
 
@@ -128,8 +127,6 @@ def generate_tokens():
                     i += 1
                 else:
                     add_token(token, 'IDN', program_file_name, line)
-                    
-                    
                     state = 1
                     token = ''
 
@@ -149,8 +146,6 @@ def generate_tokens():
                     i += 1
                 else:
                     add_token(token, 'LAB', program_file_name, line)
-                    
-                    
                     state = 1
                     token = ''
 
@@ -164,8 +159,6 @@ def generate_tokens():
                     state = 6
                 else:
                     add_token(token, 'CON', program_file_name, line)
-                    
-                    
                     state = 1
                     token = ''
 
@@ -175,8 +168,6 @@ def generate_tokens():
                     i += 1
                 else:
                     add_token(token, 'CON', program_file_name, line)
-                    
-                    
                     state = 1
                     token = ''
 
@@ -195,19 +186,15 @@ def generate_tokens():
                     token += char
                     i += 1
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
                     token = ''
                 elif re.match(regex_patterns['equal'], char):
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
-
                     hasToRead = True
                 else:
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
                     token = ''
 
@@ -216,19 +203,15 @@ def generate_tokens():
                     token += char
                     i += 1
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
                     token = ''
                 elif re.match(regex_patterns['equal'], char):
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
-
                     hasToRead = True
                 else:
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
                     token = ''
 
@@ -236,13 +219,10 @@ def generate_tokens():
                 if re.match(regex_patterns['equal'], char):
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
-
                     hasToRead = True
                 else:
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
                     token = ''
 
@@ -250,9 +230,7 @@ def generate_tokens():
                 if re.match(regex_patterns['equal'], char):
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
-
                     hasToRead = True
                 else:
                     state = 1
@@ -264,7 +242,3 @@ def generate_tokens():
             print('SyntaxError\n'
                   'line = ' + str(line) + '\n'
                                           'token: ' + err + '\n')
-
-
-# if __name__ == "__main__":
-#     generate_tokens()
