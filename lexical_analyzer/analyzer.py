@@ -12,6 +12,39 @@ program_file_name = 'program'
 announcements_block = True
 
 
+def create_tables_dir(program_file_name):
+    if not os.path.isdir(tables_path):
+        try:
+            os.mkdir(tables_path)
+        except OSError:
+            print("Creation of the directory %s failed" % tables_path)
+    program_tables_path = tables_path + program_file_name
+    if not os.path.isdir(program_tables_path):
+        try:
+            os.mkdir(program_tables_path)
+        except OSError:
+            print("Creation of the directory %s failed" % program_tables_path)
+
+
+def create_tables_files(program_file_name):
+    # file to write tokens
+    with open(tables_path + program_file_name + '/tokens.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Token number', 'Line number', 'Token', 'IDN id', 'CON id', 'LAB id', 'TOK id'])
+    # file to write identifiers
+    with open(tables_path + program_file_name + '/IDN.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Id', 'Name', 'Value', 'Type'])
+    # file to write constants
+    with open(tables_path + program_file_name + '/CONST.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Id', 'Value', 'Type'])
+    # file to write labels
+    with open(tables_path + program_file_name + '/LAB.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Id', 'Name'])
+
+
 def add_token(tok, token_type):
     global announcements_block
     if token == 'begin':
@@ -40,43 +73,11 @@ def add_token(tok, token_type):
 
 
 def generate_tokens():
-
-    if not os.path.isdir(tables_path):
-        try:
-            os.mkdir(tables_path)
-        except OSError:
-            print("Creation of the directory %s failed" % tables_path)
-        # else:
-        #     print("Successfully created the directory %s " % tables_path)
-
-    program_tables_path = tables_path + program_file_name
-    if not os.path.isdir(program_tables_path):
-        try:
-            os.mkdir(program_tables_path)
-        except OSError:
-            print("Creation of the directory %s failed" % program_tables_path)
-        # else:
-        #     print("Successfully created the directory %s " % program_tables_path)
-
+    create_tables_dir(program_file_name)
+    create_tables_files(program_file_name)
     # file to read program
     with open(root_dir + program_file_name + '.txt', 'r') as f:
         program = [row.strip() for row in f]
-    # file to write tokens
-    with open(tables_path + program_file_name + '/tokens.csv', 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Token number', 'Line number', 'Token', 'IDN id', 'CON id', 'LAB id', 'TOK id'])
-    # file to write identifiers
-    with open(tables_path + program_file_name + '/IDN.csv', 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Id', 'Name', 'Value', 'Type'])
-    # file to write constants
-    with open(tables_path + program_file_name + '/CONST.csv', 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Id', 'Value', 'Type'])
-    # file to write labels
-    with open(tables_path + program_file_name + '/LAB.csv', 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Id', 'Name'])
 
     global hasToRead
     hasToRead = False
