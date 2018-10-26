@@ -1,55 +1,15 @@
+import os
 import re
 import csv
-import os
 from lexical_analyzer.regex_patterns import regex_patterns
+from lexical_analyzer.tokens_identifiers import tokens_identifiers
 
-path = './'
-tables_path = path + 'tables/'
-
+root_dir = './'
+tables_path = root_dir + 'tables/'
 
 program_file_name = 'program'
-# program_file_name = input('Input name of program file: ')
 
 announcements_block = True
-
-tokens_id = {
-    'int': 1,
-    'float': 2,
-    'begin': 3,
-    'end': 4,
-    'goto': 5,
-    'cin': 6,
-    'cout': 7,
-    'for': 8,
-    'by': 9,
-    'to': 10,
-    'do': 11,
-    'rof': 12,
-    'if': 13,
-    'then': 14,
-    'fi': 15,
-    ';': 16,
-    ':': 17,
-    ',': 18,
-    '=': 19,
-    '>>': 20,
-    '<<': 21,
-    '>': 22,
-    '<': 23,
-    '>=': 24,
-    '<=': 25,
-    '==': 26,
-    '!=': 27,
-    '+': 28,
-    '-': 29,
-    '*': 30,
-    '/': 31,
-    '(': 32,
-    ')': 33,
-    'IDN': 100,
-    'CON': 101,
-    'LAB': 102,
-}
 
 
 def add_token(tok, token_type):
@@ -99,7 +59,7 @@ def generate_tokens():
         #     print("Successfully created the directory %s " % program_tables_path)
 
     # file to read program
-    with open(path + program_file_name + '.txt', 'r') as f:
+    with open(root_dir + program_file_name + '.txt', 'r') as f:
         program = [row.strip() for row in f]
     # file to write tokens
     with open(tables_path + program_file_name + '/tokens.csv', 'w', newline='') as f:
