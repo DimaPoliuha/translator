@@ -1,7 +1,10 @@
 import os
 
+root_dir = './'
+tables_path = root_dir + 'tables/'
 
-def create_tables_dir(program_file_name, tables_path):
+
+def create_tables_dir(program_file_name):
     if not os.path.isdir(tables_path):
         try:
             os.mkdir(tables_path)

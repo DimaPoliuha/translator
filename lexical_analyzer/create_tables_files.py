@@ -1,7 +1,10 @@
 import csv
 
+root_dir = './'
+tables_path = root_dir + 'tables/'
 
-def create_tables_files(program_file_name, tables_path):
+
+def create_tables_files(program_file_name):
     # file to write tokens
     with open(tables_path + program_file_name + '/tokens.csv', 'w', newline='') as f:
         writer = csv.writer(f)
