@@ -6,4 +6,5 @@ begin
 a = 1.2;
 d = .7;
 #f:
-    sum = a / d;
+    sum = a / d + 1;
+end
