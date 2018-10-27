@@ -12,12 +12,12 @@ program_file_name = 'program'
 def generate_tokens():
     create_tables_dir(program_file_name)
     create_tables_files(program_file_name)
-    # file to read program
+    # read program text from file
     with open(root_dir + program_file_name + '.txt', 'r') as f:
         program = [row.strip() for row in f]
 
-    global hasToRead
-    hasToRead = False
+    global has_to_read
+    has_to_read = False
     global state
     state = 1
     global i
@@ -36,13 +36,12 @@ def generate_tokens():
             # if we reached EOF
             if line >= len(program):
                 break
-
         # if we reached EOF
         if line >= len(program):
             break
 
         # if there's need to start new token when we end previous
-        if hasToRead:
+        if has_to_read:
             i += 1
             # if we reached EOL or blank line
             while len(program[line]) == 0 or i >= len(program[line]):
@@ -54,9 +53,8 @@ def generate_tokens():
             # if we reached EOF
             if line >= len(program):
                 break
-
             token = ''
-            hasToRead = False
+            has_to_read = False
 
         char = program[line][i]
 
@@ -66,57 +64,46 @@ def generate_tokens():
                     token += char
                     state = 2
                     i += 1
-
                 elif re.match(regex_patterns['number_sign'], char):
                     token += char
                     state = 3
                     i += 1
-
                 elif re.match(regex_patterns['digit'], char):
                     token += char
                     state = 5
                     i += 1
-
                 elif re.match(regex_patterns['dot'], char):
                     token += char
                     state = 7
                     i += 1
-
                 elif re.match(regex_patterns['single_separator'], char):
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
-                    
                     state = 1
-                    hasToRead = True
-
+                    has_to_read = True
                 elif re.match(regex_patterns['more'], char):
                     token += char
                     state = 8
                     i += 1
-
                 elif re.match(regex_patterns['less'], char):
                     token += char
                     state = 9
                     i += 1
-
                 elif re.match(regex_patterns['equal'], char):
                     token += char
                     state = 10
                     i += 1
-
                 elif re.match(regex_patterns['not_equal'], char):
                     token += char
                     state = 11
                     i += 1
-
                 # if next char is white separator
                 elif re.match(regex_patterns['white_separator'], char) and i < len(program[line]) - 1:
                     while re.match(regex_patterns['white_separator'], program[line][i]) and i < len(program[line]) - 1:
                         i += 1
-
                 else:
                     state = 1
-                    hasToRead = True
+                    has_to_read = True
                     raise SyntaxError
 
             elif state == 2:
@@ -135,7 +122,7 @@ def generate_tokens():
                     state = 4
                 else:
                     state = 1
-                    hasToRead = True
+                    has_to_read = True
                     raise SyntaxError
 
             elif state == 4:
@@ -176,7 +163,7 @@ def generate_tokens():
                     state = 6
                 else:
                     state = 1
-                    hasToRead = True
+                    has_to_read = True
                     raise SyntaxError
 
             elif state == 8:
@@ -190,7 +177,7 @@ def generate_tokens():
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
                     state = 1
-                    hasToRead = True
+                    has_to_read = True
                 else:
                     add_token(token, 'TOK', program_file_name, line)
                     state = 1
@@ -207,7 +194,7 @@ def generate_tokens():
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
                     state = 1
-                    hasToRead = True
+                    has_to_read = True
                 else:
                     add_token(token, 'TOK', program_file_name, line)
                     state = 1
@@ -218,7 +205,7 @@ def generate_tokens():
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
                     state = 1
-                    hasToRead = True
+                    has_to_read = True
                 else:
                     add_token(token, 'TOK', program_file_name, line)
                     state = 1
@@ -229,10 +216,10 @@ def generate_tokens():
                     token += char
                     add_token(token, 'TOK', program_file_name, line)
                     state = 1
-                    hasToRead = True
+                    has_to_read = True
                 else:
                     state = 1
-                    hasToRead = True
+                    has_to_read = True
                     raise SyntaxError
 
         except SyntaxError:
