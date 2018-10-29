@@ -224,6 +224,7 @@ def generate_tokens():
 
         except SyntaxError:
             err = token if token else program[line][i]
-            print('SyntaxError\n'
-                  'line = ' + str(line) + '\n'
+            print('Lexical analyzer error\n'
+                  'line: ' + str(line) + '\n'
                                           'token: ' + err + '\n')
+            break
