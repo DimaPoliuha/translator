@@ -3,7 +3,7 @@ regex_patterns = {
     'character': r"^[A-Za-z]{1}$",
     'identifier': r"^\w{1}$",
     'digit': r"^\d{1}$",
-    'single_separator': r"^[,;:()\-+*\/]{1}$",
+    'single_separator': r"^[,;:()\-+*\/\[\]]{1}$",
     'dot': r"^[.]{1}$",
     'more': r"^[>]{1}$",
     'less': r"^[<]{1}$",
