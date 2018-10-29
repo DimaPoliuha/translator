@@ -1,14 +1,13 @@
-int a;
-int d;
-int sum;
-int q;
-
+    float a, d, sum;
+    int q;
 begin;
-
-q = 56;
-a = 1.2;
-d = .7;
-#f:
-
-    sum = a / d + 1.2;
+    q = 56;
+    a = 1.2;
+    d = .7;
+    if a > 1 or q < 50 then:
+        goto #f;
+    fi;
+    sum = (q + a + d) / 100;
+    #f:
+        sum = a / d + 1.2 * q;
 end;
