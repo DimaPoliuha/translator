@@ -16,10 +16,12 @@ def add_token(tok, token_type, program_file_name, line):
     global idn_count
     global con_count
     global lab_count
+
     # check end announcements_block
     if tok == 'begin':
         announcements_block = False
 
+    # write token to file
     with open(tables_path + program_file_name + '/tokens.csv', 'a', newline='') as f:
         writer = csv.writer(f)
 
@@ -32,6 +34,7 @@ def add_token(tok, token_type, program_file_name, line):
                 reader = csv.reader(file_identifiers, delimiter=',')
                 idns = []
                 for row in reader:
+                    # skip first line
                     if row[0] == 'Id':
                         continue
                     idns.append(row[1])
@@ -39,8 +42,9 @@ def add_token(tok, token_type, program_file_name, line):
                 raise Exception('Re-announcement')
             elif not announcements_block and tok not in idns:
                 raise Exception('Use of undeclared identifier')
-            # write to IDN file
+            
             idn_id = idns.index(tok) if tok in idns else idn_count
+            # write to IDN file
             if announcements_block:
                 with open(tables_path + program_file_name + '/IDN.csv', 'a', newline='') as file_identifiers:
                     writer_identifiers = csv.writer(file_identifiers)
