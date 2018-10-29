@@ -104,7 +104,7 @@ def generate_tokens():
                 else:
                     state = 1
                     has_to_read = True
-                    raise SyntaxError
+                    raise Exception
 
             elif state == 2:
                 if re.match(regex_patterns['identifier'], char) or re.match(regex_patterns['digit'], char):
@@ -123,7 +123,7 @@ def generate_tokens():
                 else:
                     state = 1
                     has_to_read = True
-                    raise SyntaxError
+                    raise Exception
 
             elif state == 4:
                 if re.match(regex_patterns['identifier'], char):
@@ -164,7 +164,7 @@ def generate_tokens():
                 else:
                     state = 1
                     has_to_read = True
-                    raise SyntaxError
+                    raise Exception
 
             elif state == 8:
                 if re.match(regex_patterns['more'], char):
@@ -220,11 +220,12 @@ def generate_tokens():
                 else:
                     state = 1
                     has_to_read = True
-                    raise SyntaxError
+                    raise Exception
 
-        except SyntaxError:
+        except Exception as err_type:
             err = token if token else program[line][i]
-            print('Lexical analyzer error\n'
-                  'line: ' + str(line) + '\n'
-                                          'token: ' + err + '\n')
+            print('Lexical analyzer exception\n' +
+                  str(err_type) +
+                  '\nline: ' + str(line) +
+                  '\ntoken: ' + err + '\n')
             break
