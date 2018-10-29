@@ -1,12 +1,14 @@
 int a;
 int d;
 int sum;
+int q;
 
 begin;
 
+q = 56;
 a = 1.2;
 d = .7;
 #f:
 
-    sum = a / d + 1;
+    sum = a / d + 1.2;
 end;
