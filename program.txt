@@ -1,6 +1,6 @@
     float a, d, sum;
     int q;
-begin;
+begin
     q = 56;
     a = 1.2;
     d = .7;
