@@ -14,7 +14,7 @@ def generate_tokens():
     create_tables_files(program_file_name)
     # read program text from file
     with open(root_dir + program_file_name + '.txt', 'r') as f:
-        program = [row.strip() for row in f]
+        program = [row.rstrip() for row in f]
 
     global has_to_read
     has_to_read = False
