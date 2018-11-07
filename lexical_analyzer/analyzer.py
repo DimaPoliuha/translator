@@ -16,6 +16,10 @@ def generate_tokens():
     with open(root_dir + program_file_name + '.txt', 'r') as f:
         program = [row.rstrip() for row in f]
 
+    # program = []
+    # for row in temp_program:
+    #     program.append(re.sub(r'(\n)', ' ', row))
+
     global has_to_read
     has_to_read = False
     global state
