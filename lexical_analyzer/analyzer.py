@@ -3,6 +3,7 @@ from lexical_analyzer.regex_patterns import regex_patterns
 from lexical_analyzer.create_tables_files import create_tables_files
 from lexical_analyzer.create_tables_dir import create_tables_dir
 from lexical_analyzer.add_token import add_token
+from lexical_analyzer.add_token import tokens
 
 root_dir = './'
 tables_path = root_dir + 'tables/'
@@ -14,11 +15,7 @@ def generate_tokens():
     create_tables_files(program_file_name)
     # read program text from file
     with open(root_dir + program_file_name + '.txt', 'r') as f:
-        program = [row.rstrip() for row in f]
-
-    # program = []
-    # for row in temp_program:
-    #     program.append(re.sub(r'(\n)', ' ', row))
+        program = [row.strip(' ') for row in f]
 
     global has_to_read
     has_to_read = False
@@ -33,6 +30,11 @@ def generate_tokens():
     global char
 
     while True:
+        # if we reached EOF
+        if line >= len(program):
+            if token == '':
+                break
+
         # if we reached EOL or blank line
         while len(program[line]) == 0 or i >= len(program[line]):
             i = 0
@@ -40,9 +42,11 @@ def generate_tokens():
             # if we reached EOF
             if line >= len(program):
                 break
+
         # if we reached EOF
         if line >= len(program):
-            break
+            if token == '':
+                break
 
         # if there's need to start new token when we end previous
         if has_to_read:
@@ -60,7 +64,7 @@ def generate_tokens():
             token = ''
             has_to_read = False
 
-        char = program[line][i]
+        char = program[line][i] if line < len(program) else ''
 
         try:
             if state == 1:
@@ -102,9 +106,11 @@ def generate_tokens():
                     state = 11
                     i += 1
                 # if next char is white separator
-                elif re.match(regex_patterns['white_separator'], char) and i < len(program[line]) - 1:
-                    while re.match(regex_patterns['white_separator'], program[line][i]) and i < len(program[line]) - 1:
+                elif re.match(regex_patterns['white_separator'], char) and i < len(program[line]):
+                    while re.match(regex_patterns['white_separator'], program[line][i]) and i < len(program[line]):
                         i += 1
+                        if i >= len(program[line]):
+                            break
                 else:
                     state = 1
                     has_to_read = True
@@ -230,6 +236,9 @@ def generate_tokens():
             err = token if token else program[line][i]
             print('Lexical analyzer exception\n' +
                   str(err_type) +
-                  '\nline: ' + str(line) +
-                  '\ntoken: ' + err + '\n')
+                  '\nline: ' + str(line)+
+                  '\nposition: ' + str(i) +
+                  '\ntoken: ' + repr(err) + '\n')
             break
+
+    return tokens
