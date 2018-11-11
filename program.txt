@@ -10,4 +10,4 @@ begin
     sum = (q + a + d) / 100;
     #f:
         sum = a / d + 1.2 * q;
-end;
+end
