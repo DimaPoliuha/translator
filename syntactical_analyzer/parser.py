@@ -4,7 +4,6 @@ relation_signs = [">", "<", ">=", "<=", "==", "!="]
 
 
 def parser():
-    global i
     program()
 
 
@@ -18,16 +17,16 @@ def program():
                     i += 1
                     return True
                 else:
-                    print('program without end ' + str(tokens[i][2]))
+                    print('err program without end ' + str(tokens[i][2]))
                     return False
             else:
                 print('err operators list (out) ' + str(tokens[i][2]))
                 return False
         else:
-            print('program without begin ' + str(tokens[i][2]))
+            print('err program without begin ' + str(tokens[i][2]))
             return False
     else:
-        print('err declaration list (out) ' + str(tokens[i][2]))
+        print('err program ' + str(tokens[i][2]))
         return False
 
 
@@ -47,7 +46,7 @@ def declaration_list():
             print('err declaration without ; ' + str(tokens[i][2]))
             return False
     else:
-        print('err declaration (out) ' + str(tokens[i][2]))
+        print('err declaration list ' + str(tokens[i][2]))
         return False
 
 
@@ -60,7 +59,7 @@ def declaration():
             print('err variables list (out) ' + str(tokens[i][2]))
             return False
     else:
-        print('err variable type (out) ' + str(tokens[i][2]))
+        print('err declaration ' + str(tokens[i][2]))
         return False
 
 
@@ -82,14 +81,15 @@ def variables_list():
     if identifier():
         if tokens[i][2] == ',':
             i += 1
-            if not variables_list():
+            if variables_list():
+                return True
+            else:
                 print('err variables list (out) ' + str(tokens[i][2]))
                 return False
-            return True
         else:
             return True
     else:
-        print('err identifier (out) ' + str(tokens[i][2]))
+        print('err variables list ' + str(tokens[i][2]))
         return False
 
 
@@ -158,7 +158,9 @@ def user_input():
             if identifier():
                 while tokens[i][2] == '>>':
                     i += 1
-                    if not identifier():
+                    if identifier():
+                        continue
+                    else:
                         print('err identifier (out) ' + str(tokens[i][2]))
                         return False
                 return True
@@ -182,7 +184,9 @@ def user_output():
             if identifier():
                 while tokens[i][2] == '<<':
                     i += 1
-                    if not identifier():
+                    if identifier():
+                        continue
+                    else:
                         print('err identifier (out) ' + str(tokens[i][2]))
                         return False
                 return True
@@ -294,7 +298,7 @@ def assignment():
             print('err assignment without = ' + str(tokens[i][2]))
             return False
     else:
-        print('err identifier (out) ' + str(tokens[i][2]))
+        print('err assignment ' + str(tokens[i][2]))
         return False
 
 
@@ -312,14 +316,11 @@ def expression():
     else:
         print('err expression ' + str(tokens[i][2]))
         return False
-    while tokens[i][2] == '+':
+    while tokens[i][2] == '+' or tokens[i][2] == '-':
         i += 1
-        if not t():
-            print('err t (out) ' + str(tokens[i][2]))
-            return False
-    while tokens[i][2] == '-':
-        i += 1
-        if not t():
+        if t():
+            continue
+        else:
             print('err t (out) ' + str(tokens[i][2]))
             return False
     return True
@@ -328,17 +329,10 @@ def expression():
 def t():
     global i
     if f():
-        while tokens[i][2] == '*':
+        while tokens[i][2] == '*' or tokens[i][2] == '/':
             i += 1
             if f():
-                True
-            else:
-                print('err f (out) ' + str(tokens[i][2]))
-                return False
-        while tokens[i][2] == '/':
-            i += 1
-            if f():
-                True
+                continue
             else:
                 print('err f (out) ' + str(tokens[i][2]))
                 return False
@@ -439,12 +433,14 @@ def ratio():
     if lt():
         while tokens[i][2] == 'or':
             i += 1
-            if not lt():
+            if lt():
+                continue
+            else:
                 print('err lt (out) ' + str(tokens[i][2]))
                 return False
         return True
     else:
-        print('err lt (out) ' + str(tokens[i][2]))
+        print('err ratio ' + str(tokens[i][2]))
         return False
 
 
@@ -453,12 +449,14 @@ def lt():
     if lf():
         while tokens[i][2] == 'and':
             i += 1
-            if not lf():
+            if lf():
+                continue
+            else:
                 print('err lf (out) ' + str(tokens[i][2]))
                 return False
         return True
     else:
-        print('err lf (out) ' + str(tokens[i][2]))
+        print('err lt ' + str(tokens[i][2]))
         return False
 
 
