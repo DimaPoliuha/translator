@@ -1,3 +1,4 @@
+import re
 from lexical_analyzer.add_token import tokens
 i = 0
 relation_signs = [">", "<", ">=", "<=", "==", "!="]
@@ -35,7 +36,7 @@ def declaration_list():
     if declaration():
         if tokens[i][2] == ';':
             i += 1
-            while declaration():
+            while declaration(True):
                 if tokens[i][2] == ';':
                     i += 1
                 else:
@@ -50,21 +51,29 @@ def declaration_list():
         return False
 
 
-def declaration():
+def declaration(option=False):
     global i
-    if variable_type():
-        if variables_list():
+    temp = i
+    if variable_type(option):
+        if variables_list(option):
             return True
         else:
+            if option:
+                i = temp
+                return False
             print('err variables list (out) ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err declaration ' + str(tokens[i][2]))
         return False
 
 
-def variable_type():
+def variable_type(option=False):
     global i
+    temp = i
     if tokens[i][2] == 'int':
         i += 1
         return True
@@ -72,206 +81,312 @@ def variable_type():
         i += 1
         return True
     else:
+        if option:
+            i = temp
+            return False
         print('err variable type ' + str(tokens[i][2]))
         return False
 
 
-def variables_list():
+def variables_list(option=False):
     global i
-    if identifier():
+    temp = i
+    if identifier(option):
         if tokens[i][2] == ',':
             i += 1
-            if variables_list():
+            if variables_list(option):
                 return True
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err variables list (out) ' + str(tokens[i][2]))
                 return False
         else:
             return True
     else:
+        if option:
+            i = temp
+            return False
         print('err variables list ' + str(tokens[i][2]))
         return False
 
 
-def operators_list():
+def operators_list(option=False):
     global i
-    if operator():
+    temp = i
+    if operator(True):
         if tokens[i][2] == ';':
             i += 1
         else:
+            if option:
+                i = temp
+                return False
             print('err operator without ; ' + str(tokens[i][2]))
             return False
-    elif label():
+    elif label(True):
         if tokens[i][2] == ':':
             i += 1
         else:
+            if option:
+                i = temp
+                return False
             print('err label without : ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err operators list ' + str(tokens[i][2]))
         return False
-    while operator():
-        if tokens[i][2] == ';':
-            i += 1
-        else:
-            print('err operator (out) ' + str(tokens[i][2]))
-            return False
-    while label():
-        if tokens[i][2] == ':':
-            i += 1
-        else:
-            print('err label (out) ' + str(tokens[i][2]))
-            return False
+    loop_count = 0
+    while True:
+        loop_count += 1
+        while operator(True):
+            loop_count = 0
+            if tokens[i][2] == ';':
+                i += 1
+            else:
+                if option:
+                    i = temp
+                    return False
+                print('err operator (out) ' + str(tokens[i][2]))
+                return False
+        while label(True):
+            loop_count = 0
+            if tokens[i][2] == ':':
+                i += 1
+            else:
+                if option:
+                    i = temp
+                    return False
+                print('err label (out) ' + str(tokens[i][2]))
+                return False
+        if loop_count > 2:
+            break
     return True
 
 
-def operator():
+def operator(option=False):
     global i
-    if assignment():
+    temp = i
+    if assignment(True):
         return True
-    elif user_input():
+    elif user_input(True):
         return True
-    elif user_output():
+    elif user_output(True):
         return True
-    elif loop():
+    elif loop(True):
         return True
-    elif conditional_statement():
+    elif conditional_statement(True):
         return True
     elif tokens[i][2] == 'goto':
         i += 1
-        if label():
+        if label(option):
             return True
         else:
+            if option:
+                i = temp
+                return False
             print('err label (out) ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err operator ' + str(tokens[i][2]))
         return False
 
 
-def user_input():
+def user_input(option=False):
     global i
+    temp = i
     if tokens[i][2] == 'cin':
         i += 1
         if tokens[i][2] == '>>':
             i += 1
-            if identifier():
+            if identifier(option):
                 while tokens[i][2] == '>>':
                     i += 1
-                    if identifier():
+                    if identifier(option):
                         continue
                     else:
+                        if option:
+                            i = temp
+                            return False
                         print('err identifier (out) ' + str(tokens[i][2]))
                         return False
                 return True
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err identifier (out) ' + str(tokens[i][2]))
                 return False
         else:
+            if option:
+                i = temp
+                return False
             print('err cin without >> ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err user input ' + str(tokens[i][2]))
         return False
 
 
-def user_output():
+def user_output(option=False):
     global i
+    temp = i
     if tokens[i][2] == 'cout':
         i += 1
         if tokens[i][2] == '<<':
             i += 1
-            if identifier():
+            if identifier(option):
                 while tokens[i][2] == '<<':
                     i += 1
-                    if identifier():
+                    if identifier(option):
                         continue
                     else:
+                        if option:
+                            i = temp
+                            return False
                         print('err identifier (out) ' + str(tokens[i][2]))
                         return False
                 return True
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err identifier (out) ' + str(tokens[i][2]))
                 return False
         else:
+            if option:
+                i = temp
+                return False
             print('err cout without << ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err user output ' + str(tokens[i][2]))
         return False
 
 
-def loop():
+def loop(option=False):
     global i
+    temp = i
     if tokens[i][2] == 'for':
         i += 1
-        if identifier():
+        if identifier(option):
             if tokens[i][2] == '=':
                 i += 1
-                if expression():
+                if expression(option):
                     if tokens[i][2] == 'by':
                         i += 1
-                        if expression():
+                        if expression(option):
                             if tokens[i][2] == 'to':
                                 i += 1
-                                if expression():
+                                if expression(option):
                                     if tokens[i][2] == 'do':
                                         i += 1
-                                        if operators_list():
+                                        if operators_list(option):
                                             if tokens[i][2] == 'rof':
                                                 i += 1
                                                 return True
                                             else:
+                                                if option:
+                                                    i = temp
+                                                    return False
                                                 print('err for without rof ' + str(tokens[i][2]))
                                                 return False
                                         else:
+                                            if option:
+                                                i = temp
+                                                return False
                                             print('err operators list (out) ' + str(tokens[i][2]))
                                             return False
                                     else:
+                                        if option:
+                                            i = temp
+                                            return False
                                         print('err for without do ' + str(tokens[i][2]))
                                         return False
                                 else:
+                                    if option:
+                                        i = temp
+                                        return False
                                     print('err expression (out) ' + str(tokens[i][2]))
                                     return False
                             else:
+                                if option:
+                                    i = temp
+                                    return False
                                 print('err for without to ' + str(tokens[i][2]))
                                 return False
                         else:
+                            if option:
+                                i = temp
+                                return False
                             print('err expression (out) ' + str(tokens[i][2]))
                             return False
                     else:
+                        if option:
+                            i = temp
+                            return False
                         print('err for without by ' + str(tokens[i][2]))
                         return False
                 else:
+                    if option:
+                        i = temp
+                        return False
                     print('err expression (out) ' + str(tokens[i][2]))
                     return False
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err = in for ' + str(tokens[i][2]))
                 return False
         else:
+            if option:
+                i = temp
+                return False
             print('err identifiers (out) ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err loop ' + str(tokens[i][2]))
         return False
 
 
-def conditional_statement():
+def conditional_statement(option=False):
     global i
+    temp = i
     if tokens[i][2] == 'if':
         i += 1
         if ratio():
             if tokens[i][2] == 'then':
                 i += 1
-                if operators_list():
-                    if tokens[i][2] == 'fi':
-                        i += 1
-                        return True
+                if tokens[i][2] == ':':
+                    i += 1
+                    if operators_list():
+                        if tokens[i][2] == 'fi':
+                            i += 1
+                            return True
+                        else:
+                            print('err conditional statement without fi ' + str(tokens[i][2]))
+                            return False
                     else:
-                        print('err conditional statement without fi ' + str(tokens[i][2]))
+                        print('err operators list (out) ' + str(tokens[i][2]))
                         return False
                 else:
-                    print('err operators list (out) ' + str(tokens[i][2]))
+                    print('err conditional statement without : ' + str(tokens[i][2]))
                     return False
             else:
                 print('err conditional statement without then ' + str(tokens[i][2]))
@@ -280,250 +395,296 @@ def conditional_statement():
             print('err ratio (out) ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err conditional statement ' + str(tokens[i][2]))
         return False
 
 
-def assignment():
+def assignment(option=False):
     global i
-    if identifier():
+    temp = i
+    if identifier(option):
         if tokens[i][2] == '=':
             i += 1
-            if expression():
+            if expression(option):
                 return True
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err expression (out) ' + str(tokens[i][2]))
                 return False
         else:
+            if option:
+                i = temp
+                return False
             print('err assignment without = ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err assignment ' + str(tokens[i][2]))
         return False
 
 
-def expression():
+def expression(option=False):
     global i
-    if t():
+    temp = i
+    if t(True):
         True
     elif tokens[i][2] == '-':
         i += 1
-        if t():
+        if t(option):
             True
         else:
+            if option:
+                i = temp
+                return False
             print('err t (out) ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err expression ' + str(tokens[i][2]))
         return False
     while tokens[i][2] == '+' or tokens[i][2] == '-':
         i += 1
-        if t():
+        if t(option):
             continue
         else:
+            if option:
+                i = temp
+                return False
             print('err t (out) ' + str(tokens[i][2]))
             return False
     return True
 
 
-def t():
+def t(option=False):
     global i
-    if f():
+    temp = i
+    if f(option):
         while tokens[i][2] == '*' or tokens[i][2] == '/':
             i += 1
-            if f():
+            if f(option):
                 continue
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err f (out) ' + str(tokens[i][2]))
                 return False
         return True
     else:
+        if option:
+            i = temp
+            return False
         print('err t ' + str(tokens[i][2]))
         return False
 
 
-def f():
+def f(option=False):
     global i
-    if identifier():
+    temp = i
+    if identifier(True):
         return True
-    elif constant_fixed_accuracy():
+    elif constant_fixed_accuracy(True):
         return True
     elif tokens[i][2] == '(':
         i += 1
-        if expression():
+        if expression(option):
             if tokens[i][2] == ')':
                 i += 1
                 return True
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err without ) ' + str(tokens[i][2]))
                 return False
         else:
+            if option:
+                i = temp
+                return False
             print('err expression (out) ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err f ' + str(tokens[i][2]))
         return False
 
 
-def identifier():
+def identifier(option=False):
     global i
-    if character():
-        while character() or digit():
-            continue
+    temp = i
+    if re.match(r'^[A-Za-z]\w*$', tokens[i][2]) and not tokens[i][2] == 'end':
+        i += 1
         return True
     else:
+        if option:
+            i = temp
+            return False
         print('err identifier ' + str(tokens[i][2]))
         return False
 
 
-def character():
+def constant_fixed_accuracy(option=False):
     global i
-    if tokens[i][2].isalpha():
+    temp = i
+    if re.match(r'([0-9]+([.][0-9]*)?|[.][0-9]+)', tokens[i][2]):
         i += 1
         return True
     else:
-        print('err character ' + str(tokens[i][2]))
-        return False
-
-
-def digit():
-    global i
-    if tokens[i][2].isdigit():
-        i += 1
-        return True
-    else:
-        print('err digit ' + str(tokens[i][2]))
-        return False
-
-
-def constant_fixed_accuracy():
-    global i
-    if number():
-        if tokens[i][2] == '.':
-            i += 1
-            if number():
-                return True
-            return True
-        return True
-    elif tokens[i][2] == '.':
-        i += 1
-        if number():
-            return True
-        else:
-            print('err number (out) ' + str(tokens[i][2]))
+        if option:
+            i = temp
             return False
-    else:
         print('err constant fixed accuracy ' + str(tokens[i][2]))
         return False
 
 
-def number():
+def ratio(option=False):
     global i
-    if digit():
-        while digit():
-            continue
-        return True
-    else:
-        print('err number ' + str(tokens[i][2]))
-        return False
-
-
-def ratio():
-    global i
-    if lt():
+    temp = i
+    if lt(option):
         while tokens[i][2] == 'or':
             i += 1
-            if lt():
+            if lt(option):
                 continue
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err lt (out) ' + str(tokens[i][2]))
                 return False
         return True
     else:
+        if option:
+            i = temp
+            return False
         print('err ratio ' + str(tokens[i][2]))
         return False
 
 
-def lt():
+def lt(option=False):
     global i
-    if lf():
+    temp = i
+    if lf(option):
         while tokens[i][2] == 'and':
             i += 1
-            if lf():
+            if lf(option):
                 continue
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err lf (out) ' + str(tokens[i][2]))
                 return False
         return True
     else:
+        if option:
+            i = temp
+            return False
         print('err lt ' + str(tokens[i][2]))
         return False
 
 
-def lf():
+def lf(option=False):
     global i
-    if relation():
+    temp = i
+    if relation(True):
         return True
     elif tokens[i][2] == '[':
         i += 1
-        if ratio():
+        if ratio(option):
             if tokens[i][2] == ']':
                 i += 1
                 return True
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err without ] ' + str(tokens[i][2]))
                 return False
         else:
+            if option:
+                i = temp
+                return False
             print('err ratio (out) ' + str(tokens[i][2]))
             return False
     elif tokens[i][2] == 'not':
         i += 1
-        if lf():
+        if lf(option):
             return True
         else:
+            if option:
+                i = temp
+                return False
             print('err lf (out) ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err lf ' + str(tokens[i][2]))
         return False
 
 
-def relation():
+def relation(option=False):
     global i
-    if expression():
-        if relation_sign():
-            if expression():
+    temp = i
+    if expression(option):
+        if relation_sign(option):
+            if expression(option):
                 return True
             else:
+                if option:
+                    i = temp
+                    return False
                 print('err expression (out) ' + str(tokens[i][2]))
                 return False
         else:
+            if option:
+                i = temp
+                return False
             print('err relation sign  (out) ' + str(tokens[i][2]))
             return False
     else:
+        if option:
+            i = temp
+            return False
         print('err relation ' + str(tokens[i][2]))
         return False
 
 
-def relation_sign():
+def relation_sign(option=False):
     global i
+    temp = i
     if tokens[i][2] in relation_signs:
         i += 1
         return True
     else:
+        if option:
+            i = temp
+            return False
         print('err relation sign ' + str(tokens[i][2]))
         return False
 
 
-def label():
+def label(option=False):
     global i
-    if tokens[i][2] == '#':
+    temp = i
+    if re.match(r'^#[A-Za-z]\w*$', tokens[i][2]):
         i += 1
-        if identifier():
-            return True
-        else:
-            print('err identifier  (out) ' + str(tokens[i][2]))
-            return False
+        return True
     else:
+        if option:
+            i = temp
+            return False
         print('err label ' + str(tokens[i][2]))
         return False
