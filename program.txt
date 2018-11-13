@@ -7,7 +7,7 @@ begin
     if a > 1 or q < 50 then:
         goto #f;
     fi;
-    sum = (q + a + d) / 100;
+    a = (q + a + d) / 100;
     #f:
         sum = a / d + 1.2 * q;
 end
