@@ -233,9 +233,9 @@ def generate_tokens():
 
         except Exception as err_type:
             err = token if token else program[line][i]
-            print('Lexical analyzer exception\n' +
+            print('Lexical analyzer exception:\n' +
                   str(err_type) +
                   '\nline: ' + str(line) +
                   '\nposition: ' + str(i) +
-                  '\ntoken: ' + repr(err) + '\n')
+                  '\ntoken: ' + repr(err))
             break
