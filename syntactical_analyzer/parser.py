@@ -4,7 +4,14 @@ relation_signs = [">", "<", ">=", "<=", "==", "!="]
 
 
 def parser():
-    program()
+    try:
+        program()
+    except Exception as err_type:
+        print('Syntactical analyzer exception:\n' +
+              str(err_type) +
+              '\ntoken number: ' + str(tokens[i][0]) +
+              '\nline number: ' + str(tokens[i][1]) +
+              '\ntoken: ' + repr(tokens[i][2]))
 
 
 def program():
