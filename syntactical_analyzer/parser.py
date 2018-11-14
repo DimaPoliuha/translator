@@ -1,4 +1,3 @@
-import re
 from lexical_analyzer.add_token import tokens
 i = 0
 relation_signs = [">", "<", ">=", "<=", "==", "!="]
@@ -523,7 +522,7 @@ def f(option=False):
 def identifier(option=False):
     global i
     temp = i
-    if re.match(r'^[A-Za-z]\w*$', tokens[i][2]) and not tokens[i][2] == 'end':
+    if tokens[i][6] == 100:
         i += 1
         return True
     else:
@@ -537,7 +536,7 @@ def identifier(option=False):
 def constant_fixed_accuracy(option=False):
     global i
     temp = i
-    if re.match(r'([0-9]+([.][0-9]*)?|[.][0-9]+)', tokens[i][2]):
+    if tokens[i][6] == 101:
         i += 1
         return True
     else:
@@ -679,7 +678,7 @@ def relation_sign(option=False):
 def label(option=False):
     global i
     temp = i
-    if re.match(r'^#[A-Za-z]\w*$', tokens[i][2]):
+    if tokens[i][6] == 102:
         i += 1
         return True
     else:
