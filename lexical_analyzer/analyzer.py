@@ -238,4 +238,5 @@ def generate_tokens():
                   '\n\nline: ' + str(line) +
                   '\nposition: ' + str(i) +
                   '\ntoken: ' + repr(err))
-            break
+            return False
+    return True
