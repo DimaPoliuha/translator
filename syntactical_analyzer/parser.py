@@ -28,12 +28,8 @@ def program():
                     return True
                 else:
                     raise Exception('err program without end')
-            else:
-                raise Exception('err operators list in program')
         else:
             raise Exception('err program without begin')
-    else:
-        raise Exception('err declaration list in program')
 
 
 def declaration_list():
@@ -49,8 +45,6 @@ def declaration_list():
             return True
         else:
             raise Exception('err declaration without ;')
-    else:
-        raise Exception('err declaration in declaration list')
 
 
 def declaration(option=False):
@@ -63,12 +57,10 @@ def declaration(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err variables list in declaration')
     else:
         if option:
             i = temp
             return False
-        raise Exception('err variable type in declaration')
 
 
 def variable_type(option=False):
@@ -96,14 +88,12 @@ def variables_list(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err variables list')
         else:
             return True
     else:
         if option:
             i = temp
             return False
-        raise Exception('err identifier in variables list')
 
 
 def operators_list(option=False):
@@ -142,7 +132,7 @@ def operators_list(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err operator in operators list')
+                raise Exception('err operator without ;')
         while label(True):
             loop_count = 0
             if tokens[i][2] == ':':
@@ -151,7 +141,7 @@ def operators_list(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err label in operators list')
+                raise Exception('err label without :')
         if loop_count > 2:
             break
     return True
@@ -170,7 +160,6 @@ def operator(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err label in operator')
     else:
         if option:
             i = temp
@@ -194,13 +183,11 @@ def user_input(option=False):
                         if option:
                             i = temp
                             return False
-                        raise Exception('err identifier in user input')
                 return True
             else:
                 if option:
                     i = temp
                     return False
-                raise Exception('err identifier in user input')
         else:
             if option:
                 i = temp
@@ -229,13 +216,11 @@ def user_output(option=False):
                         if option:
                             i = temp
                             return False
-                        raise Exception('err identifier in user output')
                 return True
             else:
                 if option:
                     i = temp
                     return False
-                raise Exception('err identifier in user output')
         else:
             if option:
                 i = temp
@@ -278,7 +263,6 @@ def loop(option=False):
                                             if option:
                                                 i = temp
                                                 return False
-                                            raise Exception('err operators list in loop')
                                     else:
                                         if option:
                                             i = temp
@@ -288,7 +272,6 @@ def loop(option=False):
                                     if option:
                                         i = temp
                                         return False
-                                    raise Exception('err expression in loop')
                             else:
                                 if option:
                                     i = temp
@@ -298,7 +281,6 @@ def loop(option=False):
                             if option:
                                 i = temp
                                 return False
-                            raise Exception('err expression in loop')
                     else:
                         if option:
                             i = temp
@@ -308,7 +290,6 @@ def loop(option=False):
                     if option:
                         i = temp
                         return False
-                    raise Exception('err expression in loop')
             else:
                 if option:
                     i = temp
@@ -318,7 +299,6 @@ def loop(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err identifier in loop')
     else:
         if option:
             i = temp
@@ -342,14 +322,10 @@ def conditional_statement(option=False):
                             return True
                         else:
                             raise Exception('err conditional statement without fi')
-                    else:
-                        raise Exception('err operators list in conditional statement')
                 else:
                     raise Exception('err conditional statement without :')
             else:
                 raise Exception('err conditional statement without then')
-        else:
-            raise Exception('err ratio in conditional statement')
     else:
         if option:
             i = temp
@@ -369,7 +345,6 @@ def assignment(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err expression in assignment')
         else:
             if option:
                 i = temp
@@ -379,7 +354,6 @@ def assignment(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err identifier in assignment')
 
 
 def expression(option=False):
@@ -395,7 +369,6 @@ def expression(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err t in expression')
     else:
         if option:
             i = temp
@@ -409,7 +382,6 @@ def expression(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err t in expression')
     return True
 
 
@@ -425,13 +397,11 @@ def t(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err f in t')
         return True
     else:
         if option:
             i = temp
             return False
-        raise Exception('err f in t')
 
 
 def f(option=False):
@@ -454,7 +424,6 @@ def f(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err expression in f')
     else:
         if option:
             i = temp
@@ -500,13 +469,11 @@ def ratio(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err lt in ratio')
         return True
     else:
         if option:
             i = temp
             return False
-        raise Exception('err ratio')
 
 
 def lt(option=False):
@@ -521,13 +488,11 @@ def lt(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err lf in lt')
         return True
     else:
         if option:
             i = temp
             return False
-        raise Exception('err lt')
 
 
 def lf(option=False):
@@ -550,7 +515,6 @@ def lf(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err ratio in lf')
     elif tokens[i][2] == 'not':
         i += 1
         if lf(option):
@@ -559,7 +523,6 @@ def lf(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err lf')
     else:
         if option:
             i = temp
@@ -578,17 +541,14 @@ def relation(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err expression in relation')
         else:
             if option:
                 i = temp
                 return False
-            raise Exception('err relation sign in relation')
     else:
         if option:
             i = temp
             return False
-        raise Exception('err relation')
 
 
 def relation_sign(option=False):
