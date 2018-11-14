@@ -73,10 +73,7 @@ def declaration(option=False):
 def variable_type(option=False):
     global i
     temp = i
-    if tokens[i][2] == 'int':
-        i += 1
-        return True
-    elif tokens[i][2] == 'float':
+    if tokens[i][2] == 'int' or tokens[i][2] == 'float':
         i += 1
         return True
     else:
@@ -169,15 +166,7 @@ def operators_list(option=False):
 def operator(option=False):
     global i
     temp = i
-    if assignment(True):
-        return True
-    elif user_input(True):
-        return True
-    elif user_output(True):
-        return True
-    elif loop(True):
-        return True
-    elif conditional_statement(True):
+    if assignment(True) or user_input(True) or user_output(True) or loop(True) or conditional_statement(True):
         return True
     elif tokens[i][2] == 'goto':
         i += 1
@@ -489,9 +478,7 @@ def t(option=False):
 def f(option=False):
     global i
     temp = i
-    if identifier(True):
-        return True
-    elif constant_fixed_accuracy(True):
+    if identifier(True) or constant_fixed_accuracy(True):
         return True
     elif tokens[i][2] == '(':
         i += 1
