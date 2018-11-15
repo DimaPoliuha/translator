@@ -311,12 +311,12 @@ def conditional_statement(option=False):
     temp = i
     if tokens[i][2] == 'if':
         i += 1
-        if ratio():
+        if ratio(option):
             if tokens[i][2] == 'then':
                 i += 1
                 if tokens[i][2] == ':':
                     i += 1
-                    if operators_list():
+                    if operators_list(option):
                         if tokens[i][2] == 'fi':
                             i += 1
                             return True
