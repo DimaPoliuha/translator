@@ -360,11 +360,11 @@ def expression(option=False):
     global i
     temp = i
     if t(True):
-        True
+        pass
     elif tokens[i][2] == '-':
         i += 1
         if t(option):
-            True
+            pass
         else:
             if option:
                 i = temp
