@@ -231,6 +231,8 @@ def generate_tokens():
                     has_to_read = True
                     raise Exception
 
+        except IndexError:
+            return True
         except Exception as err_type:
             err = token if token else program[line][i]
             print('Lexical analyzer exception: ' +
