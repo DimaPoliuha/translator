@@ -6,6 +6,9 @@ relation_signs = [">", "<", ">=", "<=", "==", "!="]
 def parser():
     try:
         program()
+    except IndexError:
+        print('err program without end')
+        return False
     except Exception as err_type:
         print('Syntactical analyzer exception: ' +
               str(err_type) +
