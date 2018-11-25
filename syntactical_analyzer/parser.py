@@ -1,4 +1,3 @@
-from lexical_analyzer.analyzer import tokens
 i = 0
 relation_signs = [">", "<", ">=", "<=", "==", "!="]
 
@@ -11,7 +10,9 @@ def raise_exception(msg=''):
                     '\ntoken: ' + repr(tokens[i][2]))
 
 
-def parser():
+def parser(tkns):
+    global tokens
+    tokens = tkns
     program()
 
 
