@@ -19,6 +19,7 @@ class Window(Frame):
         self.text_editor = Text(self)
         self.text_editor.config(undo=True, autoseparators=True, maxundo=-1)
         self.file_path = None
+        self.tokens = None
 
         self.init_window()
 
@@ -120,19 +121,22 @@ class Window(Frame):
 
     def lexical_analyzer(self):
         try:
-            generate_tokens(self.file_path.split('/')[-1])
+            self.tokens = generate_tokens(self.file_path.split('/')[-1])
         except IndexError:
             messagebox.showinfo("Lexical analyzer exception:", "index error")
         except Exception as err_type:
             messagebox.showinfo("Lexical analyzer exception", str(err_type))
 
     def syntactical_analyzer(self):
-        try:
-            parser()
-        except IndexError:
-            messagebox.showinfo("Syntactical analyzer exception:", "Program without 'end'")
-        except Exception as err_type:
-            messagebox.showinfo("Syntactical analyzer exception", str(err_type))
+        if self.tokens is None:
+            messagebox.showinfo("Syntactical analyzer exception:", "You need to run lexical analyzer first")
+        else:
+            try:
+                parser(self.tokens)
+            except IndexError:
+                messagebox.showinfo("Syntactical analyzer exception:", "Program without 'end'")
+            except Exception as err_type:
+                messagebox.showinfo("Syntactical analyzer exception", str(err_type))
 
 
 if __name__ == "__main__":
