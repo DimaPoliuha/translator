@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import messagebox, filedialog
+import csv
 
 from lexical_analyzer.analyzer import generate_tokens
 from syntactical_analyzer.parser import parser
@@ -55,6 +56,13 @@ class Window(Frame):
         run_menu.add_cascade(label="Syntactical analyse", menu=syntactical_analyse_menu)
         menu.add_cascade(label="Run", menu=run_menu)
 
+        tables_menu = Menu(menu, tearoff=0)
+        tables_menu.add_command(label="Tokens table", command=self.tokens_table)
+        tables_menu.add_command(label="IDNs table", command=self.idn_table)
+        tables_menu.add_command(label="CONs table", command=self.con_table)
+        tables_menu.add_command(label="LABs table", command=self.lab_table)
+        menu.add_cascade(label="Tables", menu=tables_menu)
+
         help_menu = Menu(menu, tearoff=0)
         help_menu.add_command(label="How to use")
         help_menu.add_command(label="About us", command=self.help_text)
@@ -89,11 +97,14 @@ class Window(Frame):
             title="Select file",
             filetypes=(("txt files", "*.txt"), ("all files", "*.*")),
         )
-        with open(self.file_path, 'r') as file:
-            text = file.read()
-        if text is not None:
-            self.text_editor.delete(0.0, END)
-            self.text_editor.insert(END, text)
+        try:
+            with open(self.file_path, 'r') as file:
+                text = file.read()
+            if text is not None:
+                self.text_editor.delete(0.0, END)
+                self.text_editor.insert(END, text)
+        except FileNotFoundError:
+            messagebox.showinfo("File open exception:", "File not found")
 
     def save_file(self, event=None):
         if self.file_path is None:
@@ -118,6 +129,42 @@ class Window(Frame):
 
     def undo(self, event=None):
         self.text_editor.edit_undo()
+
+    def show_table(self, table_name):
+        frame = Toplevel(self.master)
+        frame.geometry("1200x600")
+
+        with open("./tables/" + self.file_path.split('/')[-1] + '/' + table_name + ".csv", newline="") as file:
+            reader = csv.reader(file)
+            # r and c tell us where to grid the labels
+            r = 0
+            for col in reader:
+                c = 0
+                for row in col:
+                    # i've added some styling
+                    label = Label(frame, text=row)
+                    if c == 6:
+                        label = Label(frame, text='   |   ')
+                        label.grid(row=r, column=c + 1)
+
+                    if r > 33:
+                        label.grid(row=r - 33, column=c + 20)
+                    else:
+                        label.grid(row=r, column=c)
+                    c += 1
+                r += 1
+
+    def tokens_table(self):
+        self.show_table('tokens')
+
+    def idn_table(self):
+        self.show_table('IDN')
+
+    def con_table(self):
+        self.show_table('CONST')
+
+    def lab_table(self):
+        self.show_table('LAB')
 
     def lexical_analyzer(self):
         try:
