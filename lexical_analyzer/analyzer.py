@@ -319,3 +319,5 @@ def generate_tokens(program_file_name):
                 state = 1
                 has_to_read = True
                 raise_exception()
+
+    return tokens
