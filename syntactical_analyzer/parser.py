@@ -1,23 +1,18 @@
-from lexical_analyzer.add_token import tokens
+from lexical_analyzer.analyzer import tokens
 i = 0
 relation_signs = [">", "<", ">=", "<=", "==", "!="]
 
 
+def raise_exception(msg=''):
+    raise Exception('Syntactical analyzer exception\n\n' +
+                    msg +
+                    '\nline: ' + str(tokens[i][1]) +
+                    '\ntoken number: ' + str(tokens[i][0]) +
+                    '\ntoken: ' + repr(tokens[i][2]))
+
+
 def parser():
-    try:
-        program()
-    except IndexError:
-        print('err program without end')
-        return False
-    except Exception as err_type:
-        print('Syntactical analyzer exception: ' +
-              str(err_type) +
-              '\n\ntoken number: ' + str(tokens[i][0]) +
-              '\nline number: ' + str(tokens[i][1]) +
-              '\ntoken: ' + repr(tokens[i][2]))
-        return False
-    else:
-        return True
+    program()
 
 
 def program():
@@ -30,9 +25,9 @@ def program():
                     i += 1
                     return True
                 else:
-                    raise Exception('err program without end')
+                    raise_exception('err program without end')
         else:
-            raise Exception('err program without begin')
+            raise_exception('err program without begin')
 
 
 def declaration_list():
@@ -44,10 +39,10 @@ def declaration_list():
                 if tokens[i][2] == ';':
                     i += 1
                 else:
-                    raise Exception('err declaration without ;')
+                    raise_exception('err declaration without ;')
             return True
         else:
-            raise Exception('err declaration without ;')
+            raise_exception('err declaration without ;')
 
 
 def declaration(option=False):
@@ -76,7 +71,7 @@ def variable_type(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err variable type')
+        raise_exception('err variable type')
 
 
 def variables_list(option=False):
@@ -109,7 +104,7 @@ def operators_list(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err operator without ;')
+            raise_exception('err operator without ;')
     elif label(True):
         if tokens[i][2] == ':':
             i += 1
@@ -117,12 +112,12 @@ def operators_list(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err label without :')
+            raise_exception('err label without :')
     else:
         if option:
             i = temp
             return False
-        raise Exception('err operators list')
+        raise_exception('err operators list')
 
     loop_count = 0
     while True:
@@ -135,7 +130,7 @@ def operators_list(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err operator without ;')
+                raise_exception('err operator without ;')
         while label(True):
             loop_count = 0
             if tokens[i][2] == ':':
@@ -144,7 +139,7 @@ def operators_list(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err label without :')
+                raise_exception('err label without :')
         if loop_count > 2:
             break
     return True
@@ -157,17 +152,13 @@ def operator(option=False):
         return True
     elif tokens[i][2] == 'goto':
         i += 1
-        if label(option):
+        if label():
             return True
-        else:
-            if option:
-                i = temp
-                return False
     else:
         if option:
             i = temp
             return False
-        raise Exception('err operator')
+        raise_exception('err operator')
 
 
 def user_input(option=False):
@@ -177,30 +168,19 @@ def user_input(option=False):
         i += 1
         if tokens[i][2] == '>>':
             i += 1
-            if identifier(option):
+            if identifier():
                 while tokens[i][2] == '>>':
                     i += 1
-                    if identifier(option):
+                    if identifier():
                         continue
-                    else:
-                        if option:
-                            i = temp
-                            return False
                 return True
-            else:
-                if option:
-                    i = temp
-                    return False
         else:
-            if option:
-                i = temp
-                return False
-            raise Exception('err user input without >>')
+            raise_exception('err user input without >>')
     else:
         if option:
             i = temp
             return False
-        raise Exception('err user input without cin')
+        raise_exception('err user input without cin')
 
 
 def user_output(option=False):
@@ -210,30 +190,19 @@ def user_output(option=False):
         i += 1
         if tokens[i][2] == '<<':
             i += 1
-            if identifier(option):
+            if identifier():
                 while tokens[i][2] == '<<':
                     i += 1
-                    if identifier(option):
+                    if identifier():
                         continue
-                    else:
-                        if option:
-                            i = temp
-                            return False
                 return True
-            else:
-                if option:
-                    i = temp
-                    return False
         else:
-            if option:
-                i = temp
-                return False
-            raise Exception('err user output without <<')
+            raise_exception('err user output without <<')
     else:
         if option:
             i = temp
             return False
-        raise Exception('err user input without cout')
+        raise_exception('err user input without cout')
 
 
 def loop(option=False):
@@ -241,72 +210,37 @@ def loop(option=False):
     temp = i
     if tokens[i][2] == 'for':
         i += 1
-        if identifier(option):
+        if identifier():
             if tokens[i][2] == '=':
                 i += 1
-                if expression(option):
+                if expression():
                     if tokens[i][2] == 'by':
                         i += 1
-                        if expression(option):
+                        if expression():
                             if tokens[i][2] == 'to':
                                 i += 1
-                                if expression(option):
+                                if expression():
                                     if tokens[i][2] == 'do':
                                         i += 1
-                                        if operators_list(option):
+                                        if operators_list():
                                             if tokens[i][2] == 'rof':
                                                 i += 1
                                                 return True
                                             else:
-                                                if option:
-                                                    i = temp
-                                                    return False
-                                                raise Exception('err loop without rof')
-                                        else:
-                                            if option:
-                                                i = temp
-                                                return False
+                                                raise_exception('err loop without rof')
                                     else:
-                                        if option:
-                                            i = temp
-                                            return False
-                                        raise Exception('err loop without do')
-                                else:
-                                    if option:
-                                        i = temp
-                                        return False
+                                        raise_exception('err loop without do')
                             else:
-                                if option:
-                                    i = temp
-                                    return False
-                                raise Exception('err loop without to')
-                        else:
-                            if option:
-                                i = temp
-                                return False
+                                raise_exception('err loop without to')
                     else:
-                        if option:
-                            i = temp
-                            return False
-                        raise Exception('err loop without by')
-                else:
-                    if option:
-                        i = temp
-                        return False
+                        raise_exception('err loop without by')
             else:
-                if option:
-                    i = temp
-                    return False
-                raise Exception('err loop without =')
-        else:
-            if option:
-                i = temp
-                return False
+                raise_exception('err loop without =')
     else:
         if option:
             i = temp
             return False
-        raise Exception('err loop without for')
+        raise_exception('err loop without for')
 
 
 def conditional_statement(option=False):
@@ -314,26 +248,26 @@ def conditional_statement(option=False):
     temp = i
     if tokens[i][2] == 'if':
         i += 1
-        if ratio(option):
+        if ratio():
             if tokens[i][2] == 'then':
                 i += 1
                 if tokens[i][2] == ':':
                     i += 1
-                    if operators_list(option):
+                    if operators_list():
                         if tokens[i][2] == 'fi':
                             i += 1
                             return True
                         else:
-                            raise Exception('err conditional statement without fi')
+                            raise_exception('err conditional statement without fi')
                 else:
-                    raise Exception('err conditional statement without :')
+                    raise_exception('err conditional statement without :')
             else:
-                raise Exception('err conditional statement without then')
+                raise_exception('err conditional statement without then')
     else:
         if option:
             i = temp
             return False
-        raise Exception('err conditional statement without if')
+        raise_exception('err conditional statement without if')
 
 
 def assignment(option=False):
@@ -352,7 +286,7 @@ def assignment(option=False):
             if option:
                 i = temp
                 return False
-            raise Exception('err assignment without =')
+            raise_exception('err assignment without =')
     else:
         if option:
             i = temp
@@ -376,7 +310,7 @@ def expression(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err expression')
+        raise_exception('err expression')
     while tokens[i][2] == '+' or tokens[i][2] == '-':
         i += 1
         if t(option):
@@ -422,7 +356,7 @@ def f(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err f without )')
+                raise_exception('err f without )')
         else:
             if option:
                 i = temp
@@ -431,7 +365,7 @@ def f(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err f')
+        raise_exception('err f')
 
 
 def identifier(option=False):
@@ -444,7 +378,7 @@ def identifier(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err identifier')
+        raise_exception('err identifier')
 
 
 def constant_fixed_accuracy(option=False):
@@ -457,7 +391,7 @@ def constant_fixed_accuracy(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err constant fixed accuracy')
+        raise_exception('err constant fixed accuracy')
 
 
 def ratio(option=False):
@@ -513,7 +447,7 @@ def lf(option=False):
                 if option:
                     i = temp
                     return False
-                raise Exception('err lf without ]')
+                raise_exception('err lf without ]')
         else:
             if option:
                 i = temp
@@ -530,7 +464,7 @@ def lf(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err lf')
+        raise_exception('err lf')
 
 
 def relation(option=False):
@@ -564,7 +498,7 @@ def relation_sign(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err relation sign')
+        raise_exception('err relation sign')
 
 
 def label(option=False):
@@ -577,4 +511,4 @@ def label(option=False):
         if option:
             i = temp
             return False
-        raise Exception('err label')
+        raise_exception('err label')
