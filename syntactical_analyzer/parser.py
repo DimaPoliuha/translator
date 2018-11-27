@@ -18,6 +18,7 @@ def parser(tkns):
 
 def program():
     global i
+    i = 0
     if declaration_list():
         if tokens[i][2] == 'begin':
             i += 1
