@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.ttk import Treeview
 from tkinter import messagebox, filedialog
 import csv
 import os
@@ -26,7 +27,7 @@ class Window(Frame):
         self.init_menu()
         self.init_hotkeys()
 
-        toolbar = Frame(bg='#d7d8e0', bd=2, height=60)
+        toolbar = Frame(bg='#d7d8e0', height=60)
         toolbar.pack(side=TOP, fill=X)
 
         lexical_analyse_btn = Button(toolbar, text="Lexical analyse", command=self.lexical_analyzer, bd=1, bg='white')
@@ -116,24 +117,28 @@ class Window(Frame):
 
     def lexical_analyzer(self):
         if self.file_path is None:
-            self.save_file_as()
+            self.open_file()
         try:
             self.tokens = generate_tokens(self.file_path.split('/')[-1])
         except IndexError:
-            messagebox.showinfo("Lexical analyzer exception:", "index error")
+            messagebox.showinfo("Lexical analyzer exception", "Index error")
         except Exception as err_type:
             messagebox.showinfo("Lexical analyzer exception", str(err_type))
+        else:
+            messagebox.showinfo("Lexical analyzer", "Success!")
 
     def syntactical_analyzer(self):
         if self.tokens is None:
-            messagebox.showinfo("Syntactical analyzer exception:", "You need to run lexical analyzer first")
+            messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
         else:
             try:
                 parser(self.tokens)
             except IndexError:
-                messagebox.showinfo("Syntactical analyzer exception:", "Program without 'end'")
+                messagebox.showinfo("Syntactical analyzer exception", "Index error (Program without 'end')")
             except Exception as err_type:
                 messagebox.showinfo("Syntactical analyzer exception", str(err_type))
+            else:
+                messagebox.showinfo("Syntactical analyzer", "Success!")
 
 
 class TablesWindow(Toplevel):
@@ -144,43 +149,57 @@ class TablesWindow(Toplevel):
 
     def init_tables_window(self):
         self.title("Tables")
-        self.geometry("1200x600")
+        self.geometry("150x600")
         self.resizable(False, False)
         # self.grab_set()
         # self.focus_set()
         self.show_files()
 
     def show_files(self):
+        # toolbar = Frame(self)
+        # toolbar.pack(side=TOP, fill=X)
+
         programs = next(os.walk('./tables'))[1]
         for program in programs:
-            Button(self, text=program, bd=0, bg='white').pack(side=TOP)
+            Button(self, text=program, bd=1, bg='white', command=lambda: self.tokens_table(program)).pack(side=TOP)
 
-    def show_table(self, table_name):
-        frame = Toplevel(self.master)
-        frame.geometry("1200x600")
+    def tokens_table(self, program_name):
+        frame = Toplevel(self)
+        frame.geometry("520x400")
+        self.resizable(False, False)
 
-        with open("./tables/" + self.file_path.split('/')[-1] + '/' + table_name + ".csv", newline="") as file:
+        TableMargin = Frame(frame, width=500)
+        TableMargin.pack(side=TOP)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        columns=("Token number", "Line number", "Token", "IDN id", "CON id", "LAB id", "TOK id"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.heading('Token number', text="Token number", anchor=W)
+        tree.heading('Line number', text="Line number", anchor=W)
+        tree.heading('Token', text="Token", anchor=W)
+        tree.heading('IDN id', text="IDN id", anchor=W)
+        tree.heading('CON id', text="CON id", anchor=W)
+        tree.heading('LAB id', text="LAB id", anchor=W)
+        tree.heading('TOK id', text="TOK id", anchor=W)
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=0, width=90)
+        tree.column('#2', stretch=NO, minwidth=0, width=90)
+        tree.column('#3', stretch=NO, minwidth=0, width=120)
+        tree.column('#4', stretch=NO, minwidth=0, width=50)
+        tree.column('#5', stretch=NO, minwidth=0, width=50)
+        tree.column('#6', stretch=NO, minwidth=0, width=50)
+        tree.column('#7', stretch=NO, minwidth=0, width=50)
+        tree.pack()
+
+        with open("./tables/" + program_name + "/tokens.csv", newline="") as file:
             reader = csv.reader(file)
-            # r and c tell us where to grid the labels
-            r = 0
-            for col in reader:
-                c = 0
-                for row in col:
-                    # i've added some styling
-                    label = Label(frame, text=row)
-                    if c == 6:
-                        label = Label(frame, text='   |   ')
-                        label.grid(row=r, column=c + 1)
-
-                    if r > 33:
-                        label.grid(row=r - 33, column=c + 20)
-                    else:
-                        label.grid(row=r, column=c)
-                    c += 1
-                r += 1
-
-    def tokens_table(self):
-        self.show_table('tokens')
+            for row in reader:
+                tree.insert("", "end", values=(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
     def idn_table(self):
         self.show_table('IDN')
