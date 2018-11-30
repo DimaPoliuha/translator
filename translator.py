@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.ttk import Treeview
 from tkinter import messagebox, filedialog
+from functools import partial
 import csv
 import os
 
@@ -117,7 +118,11 @@ class Window(Frame):
 
     def lexical_analyzer(self):
         if self.file_path is None:
-            self.open_file()
+            text = self.text_editor.get("1.0", "end-1c")
+            if text:
+                self.save_file_as()
+            else:
+                self.open_file()
         try:
             self.tokens = generate_tokens(self.file_path.split('/')[-1])
         except IndexError:
@@ -148,28 +153,38 @@ class TablesWindow(Toplevel):
         self.init_tables_window()
 
     def init_tables_window(self):
-        self.title("Tables")
+        self.title("Recent files")
         self.geometry("150x600")
         self.resizable(False, False)
-        # self.grab_set()
-        # self.focus_set()
         self.show_files()
 
     def show_files(self):
-        # toolbar = Frame(self)
-        # toolbar.pack(side=TOP, fill=X)
-
         programs = next(os.walk('./tables'))[1]
         for program in programs:
-            Button(self, text=program, bd=1, bg='white', command=lambda: self.tokens_table(program)).pack(side=TOP)
+            Button(self, text=program, bd=1, bg='white', command=partial(self.show_tables, program)).pack(side=TOP)
+
+    def show_tables(self, program_name):
+        self.frame = Toplevel(self)
+        self.frame.geometry("1000x400")
+        self.frame.title("Tables")
+        self.frame.resizable(False, False)
+
+        toolbar = Frame(self.frame)
+        toolbar.pack(side=TOP, fill=X)
+
+        Label(toolbar, text="Tokens", width=70).pack(side=LEFT)
+        Label(toolbar, text="Identifiers", width=30).pack(side=LEFT)
+        Label(toolbar, text="Constants", width=25).pack(side=LEFT)
+        Label(toolbar, text="Labels", width=15).pack(side=LEFT)
+
+        self.tokens_table(program_name)
+        self.idn_table(program_name)
+        self.con_table(program_name)
+        self.lab_table(program_name)
 
     def tokens_table(self, program_name):
-        frame = Toplevel(self)
-        frame.geometry("520x400")
-        self.resizable(False, False)
-
-        TableMargin = Frame(frame, width=500)
-        TableMargin.pack(side=TOP)
+        TableMargin = Frame(self.frame, width=500)
+        TableMargin.pack(side=LEFT)
         scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
         scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
         tree = Treeview(TableMargin,
@@ -188,8 +203,8 @@ class TablesWindow(Toplevel):
         tree.heading('TOK id', text="TOK id", anchor=W)
         tree.column('#0', stretch=NO, minwidth=0, width=0)
         tree.column('#1', stretch=NO, minwidth=0, width=90)
-        tree.column('#2', stretch=NO, minwidth=0, width=90)
-        tree.column('#3', stretch=NO, minwidth=0, width=120)
+        tree.column('#2', stretch=NO, minwidth=0, width=80)
+        tree.column('#3', stretch=NO, minwidth=0, width=110)
         tree.column('#4', stretch=NO, minwidth=0, width=50)
         tree.column('#5', stretch=NO, minwidth=0, width=50)
         tree.column('#6', stretch=NO, minwidth=0, width=50)
@@ -201,21 +216,100 @@ class TablesWindow(Toplevel):
             for row in reader:
                 tree.insert("", "end", values=(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
-    def idn_table(self):
-        self.show_table('IDN')
+    def idn_table(self, program_name):
+        TableMargin = Frame(self.frame, width=300)
+        TableMargin.pack(side=LEFT)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        columns=("Id", "Name", "Value", "Type"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.heading('Id', text="Id", anchor=W)
+        tree.heading('Name', text="Name", anchor=W)
+        tree.heading('Value', text="Value", anchor=W)
+        tree.heading('Type', text="Type", anchor=W)
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=0, width=30)
+        tree.column('#2', stretch=NO, minwidth=0, width=70)
+        tree.column('#3', stretch=NO, minwidth=0, width=70)
+        tree.column('#4', stretch=NO, minwidth=0, width=40)
+        tree.pack()
 
-    def con_table(self):
-        self.show_table('CONST')
+        with open("./tables/" + program_name + "/IDN.csv", newline="") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                tree.insert("", "end", values=(row[0], row[1],
+                                               # row[2], row[3]
+                                               ))
 
-    def lab_table(self):
-        self.show_table('LAB')
+    def con_table(self, program_name):
+        TableMargin = Frame(self.frame, width=300)
+        TableMargin.pack(side=LEFT)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        columns=("Id", "Value", "Type"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.heading('Id', text="Id", anchor=W)
+        tree.heading('Value', text="Value", anchor=W)
+        tree.heading('Type', text="Type", anchor=W)
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=0, width=30)
+        tree.column('#2', stretch=NO, minwidth=0, width=70)
+        tree.column('#3', stretch=NO, minwidth=0, width=40)
+        tree.pack()
+
+        with open("./tables/" + program_name + "/CONST.csv", newline="") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                tree.insert("", "end", values=(row[0], row[1], row[2]))
+
+    def lab_table(self, program_name):
+        TableMargin = Frame(self.frame, width=300)
+        TableMargin.pack(side=LEFT)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        columns=("Id", "Name"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.heading('Id', text="Id", anchor=W)
+        tree.heading('Name', text="Name", anchor=W)
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=0, width=30)
+        tree.column('#2', stretch=NO, minwidth=0, width=60)
+        tree.pack()
+
+        with open("./tables/" + program_name + "/LAB.csv", newline="") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                tree.insert("", "end", values=(row[0], row[1]))
 
 
 if __name__ == "__main__":
 
-    root = Tk()
-    app = Window(root)
+    # root = Tk()
+    # app = Window(root)
+    #
+    # root.geometry("1200x600")
+    # root.resizable(False, False)
+    # root.mainloop()
 
-    root.geometry("1200x600")
-    root.resizable(False, False)
-    root.mainloop()
+    try:
+        tokens = generate_tokens('program.txt')
+        parser(tokens)
+    except IndexError:
+        print("exception: ", "Index error")
+    except Exception as err_type:
+        print("exception: ", str(err_type))
