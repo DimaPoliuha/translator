@@ -6,7 +6,7 @@ import csv
 import os
 
 from lexical_analyzer.analyzer import generate_tokens
-from syntactical_analyzer.parser import parser
+from syntactical_analyzer.recursive_descent import parser
 
 
 # GUI
