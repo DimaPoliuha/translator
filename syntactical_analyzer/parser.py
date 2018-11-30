@@ -250,7 +250,7 @@ def conditional_statement(option=False):
     temp = i
     if tokens[i][2] == 'if':
         i += 1
-        if ratio():
+        if le():
             if tokens[i][2] == 'then':
                 i += 1
                 if tokens[i][2] == ':':
@@ -396,7 +396,7 @@ def constant_fixed_accuracy(option=False):
         raise_exception('err constant fixed accuracy')
 
 
-def ratio(option=False):
+def le(option=False):
     global i
     temp = i
     if lt(option):
@@ -441,7 +441,7 @@ def lf(option=False):
         return True
     elif tokens[i][2] == '[':
         i += 1
-        if ratio(option):
+        if le(option):
             if tokens[i][2] == ']':
                 i += 1
                 return True
