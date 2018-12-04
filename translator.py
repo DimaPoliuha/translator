@@ -325,7 +325,7 @@ if __name__ == "__main__":
 
     try:
         tokens = generate_tokens('program.txt')
-        recursive_parser(tokens)
+        automatic_parser(tokens)
     except IndexError:
         print("exception: ", "Index error")
     except Exception as err_type:
