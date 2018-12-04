@@ -6,7 +6,8 @@ import csv
 import os
 
 from lexical_analyzer.analyzer import generate_tokens
-from syntactical_analyzer.recursive_descent import parser
+from syntactical_analyzer.recursive_descent import parser as recursive_parser
+from syntactical_analyzer.automatic_machine import parser as automatic_parser
 
 
 # GUI
@@ -34,8 +35,11 @@ class Window(Frame):
         lexical_analyse_btn = Button(toolbar, text="Lexical analyse", command=self.lexical_analyzer, bd=1, bg='white')
         lexical_analyse_btn.pack(side=LEFT)
 
-        syntactical_analyzer_btn = Button(toolbar, text="Recursive descent", command=self.syntactical_analyzer, bd=1, bg='white')
-        syntactical_analyzer_btn.pack(side=LEFT)
+        recursive_descent_btn = Button(toolbar, text="Recursive descent", command=self.recursive_descent, bd=1, bg='white')
+        recursive_descent_btn.pack(side=LEFT)
+
+        automatic_machine_btn = Button(toolbar, text="Recursive descent", command=self.automatic_machine, bd=1, bg='white')
+        automatic_machine_btn.pack(side=LEFT)
 
         open_tables_btn = Button(toolbar, text="Open tables", command=self.open_tables_window, bd=0, bg='white')
         open_tables_btn.pack(side=RIGHT)
@@ -132,18 +136,31 @@ class Window(Frame):
         else:
             messagebox.showinfo("Lexical analyzer", "Success!")
 
-    def syntactical_analyzer(self):
+    def recursive_descent(self):
         if self.tokens is None:
             messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
         else:
             try:
-                parser(self.tokens)
+                recursive_parser(self.tokens)
             except IndexError:
-                messagebox.showinfo("Syntactical analyzer exception", "Index error (Program without 'end')")
+                messagebox.showinfo("Syntactical analyzer (recursive descent) exception", "Index error (Program without 'end')")
             except Exception as err_type:
-                messagebox.showinfo("Syntactical analyzer exception", str(err_type))
+                messagebox.showinfo("Syntactical analyzer (recursive descent) exception", str(err_type))
             else:
-                messagebox.showinfo("Syntactical analyzer", "Success!")
+                messagebox.showinfo("Syntactical analyzer (recursive descent)", "Success!")
+
+    def automatic_machine(self):
+        if self.tokens is None:
+            messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
+        else:
+            try:
+                automatic_parser(self.tokens)
+            except IndexError:
+                messagebox.showinfo("Syntactical analyzer (automatic machine) exception", "Index error")
+            except Exception as err_type:
+                messagebox.showinfo("Syntactical analyzer (automatic machine) exception", str(err_type))
+            else:
+                messagebox.showinfo("Syntactical analyzer (automatic machine)", "Success!")
 
 
 class TablesWindow(Toplevel):
@@ -308,7 +325,7 @@ if __name__ == "__main__":
 
     try:
         tokens = generate_tokens('program.txt')
-        parser(tokens)
+        recursive_parser(tokens)
     except IndexError:
         print("exception: ", "Index error")
     except Exception as err_type:
