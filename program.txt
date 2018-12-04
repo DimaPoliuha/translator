@@ -4,7 +4,7 @@ begin
     q = 56;
     a = 1.2;
     d = .7;
-    if a > 1 and or q < 50 then:
+    if a > 1 and q < 50 then:
         goto #f;
     fi;
     a = (q + a + d) / 100;
