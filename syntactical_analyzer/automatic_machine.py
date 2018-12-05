@@ -1,4 +1,7 @@
 automatic_machine_table = {
+    # state: {
+    #     token_id (from tokens_identifiers.py): [stack, next state, (False - error, True - exit)]
+    # }
     1: {
         1: [None, 2, False],
         2: [None, 2, False]
@@ -193,26 +196,42 @@ def parser(tkns):
     tokens = tkns
     global i
     i = 0
-    alpha = 1
+    state = 1
     stack = []
     while i < len(tokens):
-        label = tokens[i][6]
-        print(alpha, tokens[i][2], stack)
-        if label in automatic_machine_table[alpha]:
-            if automatic_machine_table[alpha][label][0]:
-                stack.append(automatic_machine_table[alpha][label][0])
-            alpha = automatic_machine_table[alpha][label][1]
+        label = tokens[i][6]    # token_id (from tokens_identifiers.py)
+        # print(state, tokens[i][2], stack)
+
+        # if label is in current state
+        if label in automatic_machine_table[state]:
+            # if is needed to push something to stack
+            if automatic_machine_table[state][label][0]:
+                # push to stack value from label
+                stack.append(automatic_machine_table[state][label][0])
+            # update state to next state from this label
+            state = automatic_machine_table[state][label][1]
+            # to get next token
             i += 1
-        elif '' in automatic_machine_table[alpha]:
-            if automatic_machine_table[alpha][''][0]:
-                stack.append(automatic_machine_table[alpha][''][0])
-                alpha = automatic_machine_table[alpha][''][1]
-            elif automatic_machine_table[alpha][''][2]:
-                alpha = stack.pop()
-        elif label not in automatic_machine_table[alpha]:
-            t = list(automatic_machine_table[alpha].values())
+        # if we have blank line current state
+        elif '' in automatic_machine_table[state]:
+            # if is needed to push something to stack
+            if automatic_machine_table[state][''][0]:
+                # push to stack value from label
+                stack.append(automatic_machine_table[state][''][0])
+                # update state to next state from this label
+                state = automatic_machine_table[state][''][1]
+            # if is needed to exit from current automatic machine
+            elif automatic_machine_table[state][''][2]:
+                # update state to value from stack
+                state = stack.pop()
+        # if label is not in current state
+        elif label not in automatic_machine_table[state]:
+            # get list of all labels from current stack
+            t = list(automatic_machine_table[state].values())
+            # check is needed to exit from current automatic machine
             if t[0][2]:
-                alpha = stack.pop()
+                # update state to value from stack
+                state = stack.pop()
             else:
-                raise_exception('Current alpha: {0}\nCurrent stack: {1}'.format(alpha,stack))
+                raise_exception('Current state: {0}\nCurrent stack: {1}'.format(state, stack))
                 break
