@@ -6,8 +6,10 @@ import csv
 import os
 
 from lexical_analyzer.analyzer import generate_tokens
+from lexical_analyzer.tokens_identifiers import tokens_identifiers
 from syntactical_analyzer.recursive_descent import parser as recursive_parser
 from syntactical_analyzer.automatic_machine import parser as automatic_parser
+from syntactical_analyzer.automatic_machine import automatic_machine_table
 
 
 # GUI
@@ -38,10 +40,13 @@ class Window(Frame):
         recursive_descent_btn = Button(toolbar, text="Recursive descent", command=self.recursive_descent, bd=1, bg='white')
         recursive_descent_btn.pack(side=LEFT)
 
-        automatic_machine_btn = Button(toolbar, text="Recursive descent", command=self.automatic_machine, bd=1, bg='white')
+        automatic_machine_btn = Button(toolbar, text="Automatic machine", command=self.automatic_machine, bd=1, bg='white')
         automatic_machine_btn.pack(side=LEFT)
 
-        open_tables_btn = Button(toolbar, text="Open tables", command=self.open_tables_window, bd=0, bg='white')
+        open_automatic_machine_table_btn = Button(toolbar, text="Automatic machine table", command=self.open_automatic_machine_table, bd=1, bg='white')
+        open_automatic_machine_table_btn.pack(side=RIGHT)
+
+        open_tables_btn = Button(toolbar, text="Open lexical tables", command=self.open_tables_window, bd=1, bg='white')
         open_tables_btn.pack(side=RIGHT)
 
         self.text_editor.config(autoseparators=True, undo=True, width=144, height=35)
@@ -116,6 +121,77 @@ class Window(Frame):
         except FileNotFoundError:
             messagebox.showinfo("File save exception:", "Blank name")
 
+    def open_automatic_table(self, automatic_table):
+        self.frame = Toplevel(self)
+        self.frame.geometry("230x400")
+        self.frame.title("Automatic machine")
+        self.frame.resizable(False, False)
+
+        TableMargin = Frame(self.frame, width=500)
+        TableMargin.pack(side=LEFT)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        columns=("State", "Label", "Stack"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.heading('State', text="State", anchor=W)
+        tree.heading('Label', text="Label", anchor=W)
+        tree.heading('Stack', text="Stack", anchor=W)
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=0, width=70)
+        tree.column('#2', stretch=NO, minwidth=0, width=70)
+        tree.column('#3', stretch=NO, minwidth=0, width=70)
+        tree.pack()
+
+        for row in automatic_table:
+            tree.insert("", "end", values=(row[0], row[1], row[2]))
+
+    def open_automatic_machine_table(self):
+        self.frame = Toplevel(self)
+        self.frame.geometry("370x400")
+        self.frame.title("Automatic machine")
+        self.frame.resizable(False, False)
+
+        TableMargin = Frame(self.frame, width=500)
+        TableMargin.pack(side=LEFT)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        columns=("State", "Label", "Stack", "Next state", "!="),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.heading('State', text="State", anchor=W)
+        tree.heading('Label', text="Label", anchor=W)
+        tree.heading('Stack', text="Stack", anchor=W)
+        tree.heading('Next state', text="Next state", anchor=W)
+        tree.heading('!=', text="!=", anchor=W)
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=0, width=70)
+        tree.column('#2', stretch=NO, minwidth=0, width=70)
+        tree.column('#3', stretch=NO, minwidth=0, width=70)
+        tree.column('#4', stretch=NO, minwidth=0, width=70)
+        tree.column('#5', stretch=NO, minwidth=0, width=70)
+        tree.pack()
+
+        for state in automatic_machine_table.keys():
+            for label in automatic_machine_table[state].keys():
+                lab = ''
+                if label:
+                    lab = list(tokens_identifiers.keys())[list(tokens_identifiers.values()).index(label)]
+
+                stack = automatic_machine_table[state][label][0] if automatic_machine_table[state][label][0] else ''
+                next_state = automatic_machine_table[state][label][1] if automatic_machine_table[state][label][1] else ''
+                subprogram = 'exit' if automatic_machine_table[state][label][2] else 'err'
+
+                tree.insert("", "end", values=(state, lab, stack, next_state, subprogram))
+
     @staticmethod
     def open_tables_window():
         TablesWindow()
@@ -153,14 +229,23 @@ class Window(Frame):
         if self.tokens is None:
             messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
         else:
+            automatic_table = []
             try:
-                automatic_parser(self.tokens)
+                automatic_table = automatic_parser(self.tokens)
             except IndexError:
                 messagebox.showinfo("Syntactical analyzer (automatic machine) exception", "Index error")
             except Exception as err_type:
                 messagebox.showinfo("Syntactical analyzer (automatic machine) exception", str(err_type))
             else:
-                messagebox.showinfo("Syntactical analyzer (automatic machine)", "Success!")
+                if automatic_table[-1][1] is not 'end':
+                    messagebox.showinfo("Syntactical analyzer (automatic machine) exception",
+                                        ('Syntactical analyzer exception\n\n' +
+                                         'Current state: {0}\nCurrent label: {1}\nCurrent stack: {2}'.format(
+                                             automatic_table[-1][0], automatic_table[-1][1], automatic_table[-1][2]
+                                         )))
+                else:
+                    messagebox.showinfo("Syntactical analyzer (automatic machine)", "Success!")
+            self.open_automatic_table(automatic_table)
 
 
 class TablesWindow(Toplevel):
@@ -316,17 +401,17 @@ class TablesWindow(Toplevel):
 
 if __name__ == "__main__":
 
-    # root = Tk()
-    # app = Window(root)
-    #
-    # root.geometry("1200x600")
-    # root.resizable(False, False)
-    # root.mainloop()
+    root = Tk()
+    app = Window(root)
 
-    try:
-        tokens = generate_tokens('program.txt')
-        automatic_parser(tokens)
-    except IndexError:
-        print("exception: ", "Index error")
-    except Exception as err_type:
-        print("exception: ", str(err_type))
+    root.geometry("1200x600")
+    root.resizable(False, False)
+    root.mainloop()
+
+    # try:
+    #     tokens = generate_tokens('program.txt')
+    #     automatic_parser(tokens)
+    # except IndexError:
+    #     print("exception: ", "Index error")
+    # except Exception as err_type:
+    #     print("exception: ", str(err_type))

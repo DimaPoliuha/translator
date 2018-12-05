@@ -183,14 +183,6 @@ automatic_machine_table = {
 }
 
 
-def raise_exception(msg=''):
-    raise Exception('Syntactical analyzer exception\n\n' +
-                    msg +
-                    '\nline: ' + str(tokens[i][1]) +
-                    '\ntoken number: ' + str(tokens[i][0]) +
-                    '\ntoken: ' + repr(tokens[i][2]))
-
-
 def parser(tkns):
     global tokens
     tokens = tkns
@@ -198,9 +190,11 @@ def parser(tkns):
     i = 0
     state = 1
     stack = []
+    automatic_table = []
     while i < len(tokens):
         label = tokens[i][6]    # token_id (from tokens_identifiers.py)
         # print(state, tokens[i][2], stack)
+        automatic_table.append([state, tokens[i][2], stack[:]])
 
         # if label is in current state
         if label in automatic_machine_table[state]:
@@ -233,5 +227,5 @@ def parser(tkns):
                 # update state to value from stack
                 state = stack.pop()
             else:
-                raise_exception('Current state: {0}\nCurrent stack: {1}'.format(state, stack))
-                break
+                return automatic_table
+    return automatic_table
