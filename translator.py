@@ -219,33 +219,37 @@ class Window(Frame):
             try:
                 recursive_parser(self.tokens)
             except IndexError:
-                messagebox.showinfo("Syntactical analyzer (recursive descent) exception", "Index error (Program without 'end')")
+                messagebox.showinfo("Recursive descent exception", "Index error (Program without 'end')")
             except Exception as err_type:
-                messagebox.showinfo("Syntactical analyzer (recursive descent) exception", str(err_type))
+                messagebox.showinfo("Recursive descent exception", str(err_type))
             else:
-                messagebox.showinfo("Syntactical analyzer (recursive descent)", "Success!")
+                messagebox.showinfo("Recursive descent", "Success!")
 
     def automatic_machine(self):
         if self.tokens is None:
             messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
         else:
-            automatic_table = []
-            try:
-                automatic_table = automatic_parser(self.tokens)
-            except IndexError:
-                messagebox.showinfo("Syntactical analyzer (automatic machine) exception", "Index error")
-            except Exception as err_type:
-                messagebox.showinfo("Syntactical analyzer (automatic machine) exception", str(err_type))
+            automatic_table, msg = automatic_parser(self.tokens)
+            if msg and not automatic_table[-1][1] == 'end':
+                print(automatic_table[-1][1])
+                messagebox.showinfo("Automatic machine exception", msg)
             else:
-                if automatic_table[-1][1] is not 'end':
-                    messagebox.showinfo("Syntactical analyzer (automatic machine) exception",
-                                        ('Syntactical analyzer exception\n\n' +
-                                         'Current state: {0}\nCurrent label: {1}\nCurrent stack: {2}'.format(
-                                             automatic_table[-1][0], automatic_table[-1][1], automatic_table[-1][2]
-                                         )))
-                else:
-                    messagebox.showinfo("Syntactical analyzer (automatic machine)", "Success!")
+                messagebox.showinfo("Automatic machine", "Success!")
             self.open_automatic_table(automatic_table)
+
+
+            # try:
+            #     automatic_table = automatic_parser(self.tokens)
+            # except IndexError:
+            #     print(self.tokens[-1][2])
+            #     if not self.tokens[-1][2] == 'end':
+            #         messagebox.showinfo("Automatic machine exception", "Index error")
+            # except Exception as err_type:
+            #     messagebox.showinfo("Automatic machine exception", str(err_type))
+            # else:
+            #     messagebox.showinfo("Automatic machine", "Success!")
+            # finally:
+            #     self.open_automatic_table(automatic_table)
 
 
 class TablesWindow(Toplevel):

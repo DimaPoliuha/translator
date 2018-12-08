@@ -191,41 +191,57 @@ def parser(tkns):
     state = 1
     stack = []
     automatic_table = []
-    while i < len(tokens):
-        label = tokens[i][6]    # token_id (from tokens_identifiers.py)
-        # print(state, tokens[i][2], stack)
-        automatic_table.append([state, tokens[i][2], stack[:]])
+    err_msg = None
+    while True:
+        try:
+            label = tokens[i][6]    # token_id (from tokens_identifiers.py)
+            # print(state, tokens[i][2], stack)
+            automatic_table.append([state, tokens[i][2], stack[:]])
 
-        # if label is in current state
-        if label in automatic_machine_table[state]:
-            # if is needed to push something to stack
-            if automatic_machine_table[state][label][0]:
-                # push to stack value from label
-                stack.append(automatic_machine_table[state][label][0])
-            # update state to next state from this label
-            state = automatic_machine_table[state][label][1]
-            # to get next token
-            i += 1
-        # if we have blank line current state
-        elif '' in automatic_machine_table[state]:
-            # if is needed to push something to stack
-            if automatic_machine_table[state][''][0]:
-                # push to stack value from label
-                stack.append(automatic_machine_table[state][''][0])
+            # if label is in current state
+            if label in automatic_machine_table[state]:
+                # if is needed to push something to stack
+                if automatic_machine_table[state][label][0]:
+                    # push to stack value from label
+                    stack.append(automatic_machine_table[state][label][0])
                 # update state to next state from this label
-                state = automatic_machine_table[state][''][1]
-            # if is needed to exit from current automatic machine
-            elif automatic_machine_table[state][''][2]:
-                # update state to value from stack
-                state = stack.pop()
-        # if label is not in current state
-        elif label not in automatic_machine_table[state]:
-            # get list of all labels from current stack
-            t = list(automatic_machine_table[state].values())
-            # check is needed to exit from current automatic machine
-            if t[0][2]:
-                # update state to value from stack
-                state = stack.pop()
-            else:
-                return automatic_table
-    return automatic_table
+                state = automatic_machine_table[state][label][1]
+                # to get next token
+                i += 1
+            # if we have blank line current state
+            elif '' in automatic_machine_table[state]:
+                # if is needed to push something to stack
+                if automatic_machine_table[state][''][0]:
+                    # push to stack value from label
+                    stack.append(automatic_machine_table[state][''][0])
+                    # update state to next state from this label
+                    state = automatic_machine_table[state][''][1]
+                # if is needed to exit from current automatic machine
+                elif automatic_machine_table[state][''][2]:
+                    # update state to value from stack
+                    state = stack.pop()
+            # if label is not in current state
+            elif label not in automatic_machine_table[state]:
+                # get list of all labels from current stack
+                t = list(automatic_machine_table[state].values())
+                # check is needed to exit from current automatic machine
+                if t[0][2]:
+                    # update state to value from stack
+                    state = stack.pop()
+                else:
+                    raise IndexError
+        except IndexError:
+            err_msg = ('Syntactical analyzer exception\n\n'
+                       'Current state: {0}\n'
+                       'Current stack: {1}\n\n'
+                       'line: {2}\n'
+                       'token number: {3}\n'
+                       'token: {4}').format(
+                                            automatic_table[-1][0],
+                                            automatic_table[-1][2],
+                                            tokens[i-1][1],
+                                            tokens[i-1][0],
+                                            repr(tokens[i-1][2]),
+                                           )
+            break
+    return automatic_table, err_msg
