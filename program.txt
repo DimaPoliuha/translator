@@ -1,5 +1,6 @@
     float a, d, sum;
     int q;
+    int i;
 begin
     q = 56;
     a = 1.2;
@@ -10,4 +11,7 @@ begin
     a = (q + a + d) / 100;
     #f:
         sum = a / d + 1.2 * q;
+    for i = 20 by 1 to 30 do:
+        cout << i;
+    rof;
 end
