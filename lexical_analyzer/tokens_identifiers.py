@@ -1,3 +1,4 @@
+# token => token id
 tokens_identifiers = {
     'int': 1,
     'float': 2,

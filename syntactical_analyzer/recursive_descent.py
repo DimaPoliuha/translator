@@ -1,7 +1,14 @@
 relation_signs = [">", "<", ">=", "<=", "==", "!="]
 
 
-def raise_exception(tokens, i, msg=''):
+def raise_exception(tokens, i, msg=None):
+    """
+    Function, that helps to raise exceptions with error message
+    :param tokens:
+    :param i:
+    :param msg:
+    :return:
+    """
     raise Exception('Syntactical analyzer exception\n\n' +
                     msg +
                     '\nline: ' + str(tokens[i][1]) +
@@ -10,6 +17,11 @@ def raise_exception(tokens, i, msg=''):
 
 
 def parser(tkns):
+    """
+    Function, that checks if tokens are in the right order
+    :param tkns:
+    :return:
+    """
     global tokens
     tokens = tkns
     program()

@@ -2,12 +2,11 @@ import re
 import csv
 
 from lexical_analyzer.regex_patterns import regex_patterns
-from lexical_analyzer.create_tables_files import create_tables_files
+from lexical_analyzer.create_tables_files import create_tables_files, tables_path
 from lexical_analyzer.create_tables_dir import create_tables_dir
 from lexical_analyzer.tokens_identifiers import tokens_identifiers
 
 root_dir = './'
-tables_path = root_dir + 'tables/'
 
 announcements_block = True
 tokens = []
@@ -16,15 +15,28 @@ constants = []
 labels = []
 
 
-def raise_exception():
+def raise_exception(msg=None):
+    """
+    Function, that helps to raise exceptions with error message
+    :return:
+    """
     err = token if token else program[line][i]
     raise Exception('Lexical analyzer exception'
-                    '\n\nline: ' + str(line) +
+                    '\n\n' + msg +
+                    '\nline: ' + str(line) +
                     '\nposition: ' + str(i) +
                     '\ntoken: ' + repr(err))
 
 
 def add_token(tok, token_type, program_file_name, line):
+    """
+    Function, that appends new token to tokens array and to 1-4 files (depending on the token)
+    :param tok:
+    :param token_type:
+    :param program_file_name:
+    :param line:
+    :return:
+    """
     global announcements_block
     global tokens
     global identifiers
@@ -41,15 +53,10 @@ def add_token(tok, token_type, program_file_name, line):
 
     elif token_type == 'IDN':
         if announcements_block and tok in identifiers:
-            raise Exception('Re-announcement of identifier' +
-                            '\n\nline: ' + str(line) +
-                            '\ntoken: ' + repr(tok)
-                            )
+            raise_exception('re-announcement of identifier')
         elif not announcements_block and tok not in identifiers:
-            raise Exception('Use of undeclared identifier' +
-                            '\n\nline: ' + str(line) +
-                            '\ntoken: ' + repr(tok)
-                            )
+            raise_exception('use of undeclared identifier')
+
         # add IDN
         if announcements_block:
             identifiers.append(tok)
@@ -59,9 +66,9 @@ def add_token(tok, token_type, program_file_name, line):
 
     elif token_type == 'CON':
         con_id = len(constants) if constants else 0
-        for i in range(len(constants)):
-            if tok in constants[i].keys():
-                con_id = i
+        for const in constants:
+            if tok in const.keys():
+                con_id = constants.index(const)
                 con_exists = True
                 break
         # add CON
@@ -87,6 +94,11 @@ def add_token(tok, token_type, program_file_name, line):
 
 
 def generate_tokens(program_file_name):
+    """
+    Function, that separates tokens from input file
+    :param program_file_name:
+    :return:
+    """
     create_tables_dir(program_file_name)
     create_tables_files(program_file_name)
 
@@ -319,5 +331,4 @@ def generate_tokens(program_file_name):
                 state = 1
                 has_to_read = True
                 raise_exception()
-
     return tokens

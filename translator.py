@@ -1,3 +1,6 @@
+"""
+Main module with GUI logic
+"""
 from tkinter import *
 from tkinter.ttk import Treeview
 from tkinter import messagebox, filedialog
@@ -14,6 +17,9 @@ from syntactical_analyzer.automatic_machine import automatic_machine_table
 
 # GUI
 class Window(Frame):
+    """
+    Main frame GUI
+    """
 
     def __init__(self, master=None):
         super().__init__(master)
@@ -238,21 +244,10 @@ class Window(Frame):
             self.open_automatic_table(automatic_table)
 
 
-            # try:
-            #     automatic_table = automatic_parser(self.tokens)
-            # except IndexError:
-            #     print(self.tokens[-1][2])
-            #     if not self.tokens[-1][2] == 'end':
-            #         messagebox.showinfo("Automatic machine exception", "Index error")
-            # except Exception as err_type:
-            #     messagebox.showinfo("Automatic machine exception", str(err_type))
-            # else:
-            #     messagebox.showinfo("Automatic machine", "Success!")
-            # finally:
-            #     self.open_automatic_table(automatic_table)
-
-
 class TablesWindow(Toplevel):
+    """
+    Recursive descent tables GUI
+    """
     def __init__(self):
         super().__init__(root)
 
