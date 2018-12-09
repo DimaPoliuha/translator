@@ -236,7 +236,9 @@ class Window(Frame):
             messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
         else:
             automatic_table, msg = automatic_parser(self.tokens)
-            if msg and not automatic_table[-1][1] == 'end':
+            if not automatic_table:
+                messagebox.showinfo("Automatic machine exception", "Exception in state 1\nCheck begin of the program!")
+            elif msg and not automatic_table[-1][1] == 'end':
                 print(automatic_table[-1][1])
                 messagebox.showinfo("Automatic machine exception", msg)
             else:
