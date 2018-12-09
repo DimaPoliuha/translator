@@ -93,7 +93,7 @@ class Window(Frame):
 
     def open_file(self, event=None):
         self.file_path = filedialog.askopenfilename(
-            initialdir="./",
+            initialdir="./programs/",
             title="Select file",
             filetypes=(("txt files", "*.txt"), ("all files", "*.*")),
         )
@@ -210,7 +210,7 @@ class Window(Frame):
             else:
                 self.open_file()
         try:
-            self.tokens = generate_tokens(self.file_path.split('/')[-1])
+            self.tokens = generate_tokens(self.file_path)
         except IndexError:
             messagebox.showinfo("Lexical analyzer exception", "Index error")
         except Exception as err_type:

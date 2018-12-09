@@ -6,8 +6,6 @@ from lexical_analyzer.create_tables_files import create_tables_files, tables_pat
 from lexical_analyzer.create_tables_dir import create_tables_dir
 from lexical_analyzer.tokens_identifiers import tokens_identifiers
 
-root_dir = './'
-
 announcements_block = True
 tokens = []
 identifiers = []
@@ -93,14 +91,12 @@ def add_token(tok, token_type, program_file_name, line):
         csv.writer(f).writerow(tokens[tok_count])
 
 
-def generate_tokens(program_file_name):
+def generate_tokens(program_file_path):
     """
     Function, that separates tokens from input file
-    :param program_file_name:
+    :param program_file_path:
     :return:
     """
-    create_tables_dir(program_file_name)
-    create_tables_files(program_file_name)
 
     global announcements_block
     global tokens
@@ -115,8 +111,12 @@ def generate_tokens(program_file_name):
 
     global program
     # read program text from file
-    with open(root_dir + program_file_name, 'r') as f:
+    with open(program_file_path, 'r') as f:
         program = [row.strip(' ') for row in f]
+
+    program_file_name = program_file_path.split('/')[-1]
+    create_tables_dir(program_file_name)
+    create_tables_files(program_file_name)
 
     global has_to_read
     has_to_read = False
