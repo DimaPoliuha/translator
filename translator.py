@@ -13,7 +13,7 @@ from lexical_analyzer.tokens_identifiers import tokens_identifiers
 from syntactical_analyzer.recursive_descent import parser as recursive_parser
 from syntactical_analyzer.automatic_machine import parser as automatic_parser
 from syntactical_analyzer.automatic_machine import automatic_machine_table
-from syntactical_analyzer.bottom_up import parser as bottom_up
+from syntactical_analyzer.bottom_up import parser as bottom_up_parser
 
 
 # GUI
@@ -49,6 +49,9 @@ class Window(Frame):
 
         automatic_machine_btn = Button(toolbar, text="Automatic machine", command=self.automatic_machine, bd=1, bg='white')
         automatic_machine_btn.pack(side=LEFT)
+
+        bottom_up_btn = Button(toolbar, text="Bottom up", command=self.bottom_up, bd=1, bg='white')
+        bottom_up_btn.pack(side=LEFT)
 
         open_automatic_machine_table_btn = Button(toolbar, text="Automatic machine table", command=self.open_automatic_machine_table, bd=1, bg='white')
         open_automatic_machine_table_btn.pack(side=RIGHT)
@@ -199,6 +202,33 @@ class Window(Frame):
 
                 tree.insert("", "end", values=(state, lab, stack, next_state, subprogram))
 
+    def open_bottom_up_table(self):
+        self.frame = Toplevel(self)
+        self.frame.geometry("1300x700")
+        self.frame.title("Bottom up")
+
+        TableMargin = Frame(self.frame, width=1000)
+        TableMargin.pack(side=LEFT)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+
+        # tree["columns"] = tuple(range(1, 63))
+        # tree.column('#0', stretch=NO, minwidth=0, width=0)
+        # tree.heading(1, text="", anchor=W)
+        # tree.column(1, stretch=NO, minwidth=20, width=70)
+        # for i in range(2, 63):
+        #     tree.heading(i, text=self.grammar_rules[i-2], anchor=W)
+        #     tree.column(i, stretch=NO, minwidth=20, width=70)
+        #
+        # scrollbary.config(command=tree.yview)
+        # scrollbary.pack(side=RIGHT, fill=Y)
+        # scrollbarx.config(command=tree.xview)
+        # scrollbarx.pack(side=BOTTOM, fill=X)
+        # tree.pack()
+
+
     @staticmethod
     def open_tables_window():
         TablesWindow()
@@ -245,6 +275,19 @@ class Window(Frame):
             else:
                 messagebox.showinfo("Automatic machine", "Success!")
             self.open_automatic_table(automatic_table)
+
+    def bottom_up(self):
+        # if self.tokens is None:
+        #     messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
+        # else:
+            try:
+                tokens = generate_tokens('./programs/program.txt')
+                self.bottom_up_main_table, self.grammar_rules = bottom_up_parser(tokens)
+            except IndexError:
+                print("exception: ", "Index error")
+            except Exception as err_type:
+                print("exception: ", str(err_type))
+            self.open_bottom_up_table()
 
 
 class TablesWindow(Toplevel):
@@ -412,8 +455,8 @@ if __name__ == "__main__":
 
     try:
         tokens = generate_tokens('./programs/program.txt')
-        bottom_up(tokens)
+        bottom_up_parser(tokens)
     except IndexError:
         print("exception: ", "Index error")
-    except Exception as err_type:
-        print("exception: ", str(err_type))
+    # except Exception as err_type:
+    #     print("exception: ", str(err_type))
