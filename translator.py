@@ -13,6 +13,7 @@ from lexical_analyzer.tokens_identifiers import tokens_identifiers
 from syntactical_analyzer.recursive_descent import parser as recursive_parser
 from syntactical_analyzer.automatic_machine import parser as automatic_parser
 from syntactical_analyzer.automatic_machine import automatic_machine_table
+from syntactical_analyzer.bottom_up import parser as bottom_up
 
 
 # GUI
@@ -402,17 +403,17 @@ class TablesWindow(Toplevel):
 
 if __name__ == "__main__":
 
-    root = Tk()
-    app = Window(root)
+    # root = Tk()
+    # app = Window(root)
+    #
+    # root.geometry("1200x600")
+    # root.resizable(False, False)
+    # root.mainloop()
 
-    root.geometry("1200x600")
-    root.resizable(False, False)
-    root.mainloop()
-
-    # try:
-    #     tokens = generate_tokens('program.txt')
-    #     automatic_parser(tokens)
-    # except IndexError:
-    #     print("exception: ", "Index error")
-    # except Exception as err_type:
-    #     print("exception: ", str(err_type))
+    try:
+        tokens = generate_tokens('./programs/program.txt')
+        bottom_up(tokens)
+    except IndexError:
+        print("exception: ", "Index error")
+    except Exception as err_type:
+        print("exception: ", str(err_type))
