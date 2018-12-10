@@ -238,7 +238,7 @@ class Window(Frame):
             automatic_table, msg = automatic_parser(self.tokens)
             if not automatic_table:
                 messagebox.showinfo("Automatic machine exception", "Exception in state 1\nCheck begin of the program!")
-            elif msg and not automatic_table[-1][1] == 'end':
+            elif msg and not (automatic_table[-1][1] == 'end' and automatic_table[-1][0] == 8):
                 print(automatic_table[-1][1])
                 messagebox.showinfo("Automatic machine exception", msg)
             else:
