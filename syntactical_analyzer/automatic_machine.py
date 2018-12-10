@@ -183,15 +183,12 @@ automatic_machine_table = {
 }
 
 
-def parser(tkns):
-    global tokens
-    tokens = tkns
+def parser(tokens):
     global i
     i = 0
     state = 1
     stack = []
     automatic_table = []
-    err_msg = None
     while True:
         try:
             label = tokens[i][6]    # token_id (from tokens_identifiers.py)
