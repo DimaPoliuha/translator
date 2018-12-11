@@ -2,7 +2,7 @@ import csv
 
 grammar = {
     "program": [
-        "declaration_list 'begin' operators_list 'end'",
+        "declaration_list 'begin' operators_list1 'end'",
     ],
     "declaration_list": [
         "declaration_list declaration ';'",
@@ -18,6 +18,9 @@ grammar = {
     "variables_list": [
         "'IDN'",
         "'IDN' ',' variables_list",
+    ],
+    "operators_list1": [
+        "operators_list"
     ],
     "operators_list": [
         "operators_list operator ';'",
@@ -42,19 +45,25 @@ grammar = {
         "user_output '<<' 'IDN'",
     ],
     "loop": [
-        "'for' 'IDN' '=' expression 'by' expression 'to' expression 'do' ':' operators_list 'rof'",
+        "'for' 'IDN' '=' expression1 'by' expression1 'to' expression1 'do' operators_list1 'rof'",
     ],
     "conditional_statement": [
-        "'if' LR 'then' ':' operators_list 'fi'",
+        "'if' LR1 'then' operators_list1 'fi'",
     ],
     "assignment": [
-        "'IDN' '=' expression",
+        "'IDN' '=' expression1",
+    ],
+    "expression1": [
+        "expression"
     ],
     "expression": [
-        "T",
-        "expression '+' T",
-        "expression '-' T",
-        "'-' T"
+        "T1",
+        "expression '+' T1",
+        "expression '-' T1",
+        "'-' T1"
+    ],
+    "T1": [
+        "T"
     ],
     "T": [
         "F",
@@ -64,11 +73,17 @@ grammar = {
     "F": [
         "'IDN'",
         "'CON'",
-        "'(' expression ')'",
+        "'(' expression1 ')'",
+    ],
+    "LR1": [
+        "LR"
     ],
     "LR": [
-        "LR 'or' LT",
-        "LT",
+        "LR 'or' LT1",
+        "LT1",
+    ],
+    "LT1": [
+        "LT"
     ],
     "LT": [
         "LT 'and' LF",
@@ -76,11 +91,11 @@ grammar = {
     ],
     "LF": [
         "relation",
-        "'[' LR ']'",
+        "'[' LR1 ']'",
         "'not' LF",
     ],
     "relation": [
-        "expression relation_sign expression",
+        "expression1 relation_sign expression1",
     ],
     "relation_sign": [
         "'<'",
@@ -154,9 +169,9 @@ def grammar_parser():
     rules_array.append('program')
     rules_array = sorted(set(rules_array))
     rules_array.reverse()
-    print(rules_array)
+    # print(rules_array)
     
-    bottom_up_table = [[None for item in rules_array] for it in rules_array]
+    bottom_up_table = [['' for item in rules_array] for it in rules_array]
 
     # relations =
     for rule in grammar:
@@ -188,7 +203,6 @@ def grammar_parser():
                     elif bottom_up_table[i][col_index] == '=':
                         bottom_up_table[i][col_index] += '<'
                         print(left_part, '<=', item, 'CONFLICT')
-    print('-'*50)
 
     # relation >
     for i in range(border):
@@ -213,8 +227,8 @@ def grammar_parser():
                     right_part = get_first_plus(j)
                     for item in left_part:
                         for it in right_part:
-                            row_index = rules_array.index(it)
-                            col_index = rules_array.index(item)
+                            row_index = rules_array.index(item)
+                            col_index = rules_array.index(it)
                             if not bottom_up_table[row_index][col_index]:
                                 bottom_up_table[row_index][col_index] = '>'
                             elif bottom_up_table[row_index][col_index] == '=':

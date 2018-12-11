@@ -214,20 +214,22 @@ class Window(Frame):
         tree = Treeview(TableMargin,
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
 
-        # tree["columns"] = tuple(range(1, 63))
-        # tree.column('#0', stretch=NO, minwidth=0, width=0)
-        # tree.heading(1, text="", anchor=W)
-        # tree.column(1, stretch=NO, minwidth=20, width=70)
-        # for i in range(2, 63):
-        #     tree.heading(i, text=self.grammar_rules[i-2], anchor=W)
-        #     tree.column(i, stretch=NO, minwidth=20, width=70)
-        #
-        # scrollbary.config(command=tree.yview)
-        # scrollbary.pack(side=RIGHT, fill=Y)
-        # scrollbarx.config(command=tree.xview)
-        # scrollbarx.pack(side=BOTTOM, fill=X)
-        # tree.pack()
+        tree["columns"] = tuple(range(1, 68))
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.heading(1, text="", anchor=W)
+        tree.column(1, stretch=NO, minwidth=20, width=70)
+        for i in range(2, 68):
+            tree.heading(i, text=self.grammar_rules[i-1], anchor=W)
+            tree.column(i, stretch=NO, minwidth=20, width=70)
 
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.pack()
+
+        for row in self.bottom_up_main_table:
+            tree.insert("", "end", values=(row))
 
     @staticmethod
     def open_tables_window():
@@ -281,8 +283,8 @@ class Window(Frame):
         #     messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
         # else:
             try:
-                tokens = generate_tokens('./programs/program.txt')
-                self.bottom_up_main_table, self.grammar_rules = bottom_up_parser(tokens)
+                # tokens = generate_tokens('./programs/program.txt')
+                self.bottom_up_main_table, self.grammar_rules = bottom_up_parser([])
             except IndexError:
                 print("exception: ", "Index error")
             except Exception as err_type:
@@ -446,17 +448,17 @@ class TablesWindow(Toplevel):
 
 if __name__ == "__main__":
 
-    # root = Tk()
-    # app = Window(root)
-    #
-    # root.geometry("1200x600")
-    # root.resizable(False, False)
-    # root.mainloop()
+    root = Tk()
+    app = Window(root)
 
-    try:
-        tokens = generate_tokens('./programs/program.txt')
-        bottom_up_parser(tokens)
-    except IndexError:
-        print("exception: ", "Index error")
+    root.geometry("1200x600")
+    root.resizable(False, False)
+    root.mainloop()
+
+    # try:
+    #     tokens = generate_tokens('./programs/program.txt')
+    #     bottom_up_parser(tokens)
+    # except IndexError:
+    #     print("exception: ", "Index error")
     # except Exception as err_type:
     #     print("exception: ", str(err_type))
