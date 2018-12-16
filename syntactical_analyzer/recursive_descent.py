@@ -235,16 +235,12 @@ def loop(option=False):
                                 if expression():
                                     if tokens[i][2] == 'do':
                                         i += 1
-                                        if tokens[i][2] == ':':
-                                            i += 1
-                                            if operators_list():
-                                                if tokens[i][2] == 'rof':
-                                                    i += 1
-                                                    return True
-                                                else:
-                                                    raise_exception(tokens, i, 'err loop without rof')
-                                        else:
-                                            raise_exception(tokens, i, 'err loop :')
+                                        if operators_list():
+                                            if tokens[i][2] == 'rof':
+                                                i += 1
+                                                return True
+                                            else:
+                                                raise_exception(tokens, i, 'err loop without rof')
                                     else:
                                         raise_exception(tokens, i, 'err loop without do')
                             else:
@@ -268,16 +264,12 @@ def conditional_statement(option=False):
         if le():
             if tokens[i][2] == 'then':
                 i += 1
-                if tokens[i][2] == ':':
-                    i += 1
-                    if operators_list():
-                        if tokens[i][2] == 'fi':
-                            i += 1
-                            return True
-                        else:
-                            raise_exception(tokens, i, 'err conditional statement without fi')
-                else:
-                    raise_exception(tokens, i, 'err conditional statement without :')
+                if operators_list():
+                    if tokens[i][2] == 'fi':
+                        i += 1
+                        return True
+                    else:
+                        raise_exception(tokens, i, 'err conditional statement without fi')
             else:
                 raise_exception(tokens, i, 'err conditional statement without then')
     else:

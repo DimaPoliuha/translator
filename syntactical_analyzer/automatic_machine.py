@@ -89,10 +89,7 @@ automatic_machine_table = {
         10: [35, 60, False]
     },
     35: {
-        11: [None, 36, False]
-    },
-    36: {
-        17: [None, 37, False]
+        11: [None, 37, False]
     },
     37: {
         102: [None, 38, False],
@@ -113,10 +110,7 @@ automatic_machine_table = {
         '': [None, None, True]
     },
     42: {
-        14: [None, 43, False]
-    },
-    43: {
-        17: [None, 44, False]
+        14: [None, 44, False]
     },
     44: {
         102: [None, 45, False],
