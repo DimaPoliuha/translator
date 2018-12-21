@@ -221,6 +221,9 @@ def grammar_parser():
                     elif bottom_up_table[row_index][j] == '<':
                         bottom_up_table[row_index][j] += '>'
                         print(item, '<>', right_part, 'CONFLICT')
+                    elif bottom_up_table[row_index][j] == '=<':
+                        bottom_up_table[row_index][j] += '>'
+                        print(item, '<=>', right_part, 'CONFLICT')
                 # print(left_part, '<', right_part)
 
                 if not rules_array[j][0] == "'":
@@ -237,6 +240,9 @@ def grammar_parser():
                             elif bottom_up_table[row_index][col_index] == '<':
                                 bottom_up_table[row_index][col_index] += '>'
                                 print(left_part, '<>', item, 'CONFLICT')
+                            elif bottom_up_table[row_index][col_index] == '=<':
+                                bottom_up_table[row_index][col_index] += '>'
+                                print(left_part, '<=>', item, 'CONFLICT')
                     # print(left_part, '>', right_part)
     return bottom_up_table, rules_array
 
