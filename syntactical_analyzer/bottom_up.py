@@ -107,6 +107,9 @@ grammar = {
     ],
 }
 
+bottom_up_rule_table = None
+rules = None
+
 
 def get_first_plus(index):
     first_tokens = set()
@@ -247,17 +250,107 @@ def grammar_parser():
     return bottom_up_table, rules_array
 
 
+def get_table():
+    global bottom_up_rule_table
+    global rules
+    if not bottom_up_rule_table:
+
+        bottom_up_rule_table, rules = grammar_parser()
+
+        with open('./papers/bottom_up.csv', 'w', newline=''):
+            pass
+
+        with open('./papers/bottom_up.csv', 'a', newline='') as f:
+            rules.insert(0, '')
+            csv.writer(f).writerow(rules)
+            for index, row in enumerate(bottom_up_rule_table):
+                row.insert(0, rules[index + 1])
+                csv.writer(f).writerow(row)
+    return bottom_up_rule_table, rules
+
+
 def parser(tokens):
-    main_table, rules = grammar_parser()
+    global bottom_up_rule_table
+    global rules
+    if not bottom_up_rule_table:
+        bottom_up_rule_table, rules = grammar_parser()
 
-    with open('./papers/bottom_up.csv', 'w', newline=''):
-        pass
+    # pure_tokens = []
+    # for token in tokens:
+    #     if token[6] == 100:
+    #         pure_tokens.append("'IDN'")
+    #     elif token[6] == 101:
+    #         pure_tokens.append("'CON'")
+    #     elif token[6] == 102:
+    #         pure_tokens.append("'LAB'")
 
-    with open('./papers/bottom_up.csv', 'a', newline='') as f:
-        rules.insert(0, '')
-        csv.writer(f).writerow(rules)
-        for index, row in enumerate(main_table):
-            row.insert(0, rules[index + 1])
-            csv.writer(f).writerow(row)
+    tokens.append(['', '', '@', '', '', '', ''])
+    stack_tkn_idn = [0, tokens[0][6], ]
+    stack = ["@", "'" + tokens.pop(0)[2] + "'", ]
+    base = stack[1]
+    # while True:
+    # while stack != ['@', 'program']:
+    for t in range(25):
+        tkn_l = stack[-1]
+        if stack_tkn_idn[-1] == 100:
+            left_index = rules.index("'IDN'")
+        elif stack_tkn_idn[-1] == 101:
+            left_index = rules.index("'CON'")
+        elif stack_tkn_idn[-1] == 102:
+            left_index = rules.index("'LAB'")
+        else:
+            left_index = rules.index(tkn_l)
 
-    return main_table, rules
+        tkn_r = "'" + tokens[0][2] + "'"
+        if tokens[0][6] == 100:
+            right_index = rules.index("'IDN'")
+        elif tokens[0][6] == 101:
+            right_index = rules.index("'CON'")
+        elif tokens[0][6] == 102:
+            right_index = rules.index("'LAB'")
+        else:
+            right_index = rules.index(tkn_r)
+
+        print(bottom_up_rule_table[left_index][right_index])
+
+        if bottom_up_rule_table[left_index][right_index] == '<':
+            stack_tkn_idn.append(tokens[0][6])
+            stack.append("'" + tokens.pop(0)[2] + "'")
+            base = tkn_r
+        elif bottom_up_rule_table[left_index][right_index] == '=':
+            stack_tkn_idn.append(tokens[0][6])
+            stack.append("'" + tokens.pop(0)[2] + "'")
+        else:
+            print(stack)
+            replacement = ""
+            # base_index = stack.index(base)
+            for i in range(len(stack) - 1, -1, -1):
+                if stack_tkn_idn[i] == 100:
+                    tail = "'IDN'"
+                elif stack_tkn_idn[i] == 101:
+                    tail = "'CON'"
+                elif stack_tkn_idn[i] == 102:
+                    tail = "'LAB'"
+                else:
+                    tail = stack[i]
+                replacement = replacement.strip()
+                replacement = tail + ' ' + replacement
+                replacement = replacement.strip()
+                # print(base)
+                print(replacement)
+                for rule in grammar:
+                    for rule_variant in grammar[rule]:
+                        if replacement == rule_variant:
+                            del stack_tkn_idn[i:]
+                            stack_tkn_idn.append(0)
+                            del stack[i:]
+                            stack.append(rule)
+                            # print(stack[i:])
+                            # print(rule)
+                            break
+                    if replacement == rule_variant:
+                        break
+                if replacement == rule_variant:
+                    break
+            # break
+    # print(stack)
