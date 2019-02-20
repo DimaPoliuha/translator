@@ -14,6 +14,7 @@ from syntactical_analyzer.recursive_descent import parser as recursive_parser
 from syntactical_analyzer.automatic_machine import parser as automatic_parser
 from syntactical_analyzer.automatic_machine import automatic_machine_table
 from syntactical_analyzer.bottom_up import parser as bottom_up_parser
+from syntactical_analyzer.bottom_up import get_table as bottom_up_table
 
 
 # GUI
@@ -52,6 +53,9 @@ class Window(Frame):
 
         bottom_up_btn = Button(toolbar, text="Bottom up", command=self.bottom_up, bd=1, bg='white')
         bottom_up_btn.pack(side=LEFT)
+
+        bottom_up_table_btn = Button(toolbar, text="Bottom up table", command=self.bottom_up_table, bd=1, bg='white')
+        bottom_up_table_btn.pack(side=RIGHT)
 
         open_automatic_machine_table_btn = Button(toolbar, text="Automatic machine table", command=self.open_automatic_machine_table, bd=1, bg='white')
         open_automatic_machine_table_btn.pack(side=RIGHT)
@@ -279,12 +283,18 @@ class Window(Frame):
             self.open_automatic_table(automatic_table)
 
     def bottom_up(self):
+        if self.tokens is None:
+            messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
+        else:
+            bottom_up_parser(self.tokens)
+
+    def bottom_up_table(self):
         # if self.tokens is None:
         #     messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
         # else:
             try:
                 # tokens = generate_tokens('./programs/program.txt')
-                self.bottom_up_main_table, self.grammar_rules = bottom_up_parser([])
+                self.bottom_up_main_table, self.grammar_rules = bottom_up_table()
             except IndexError:
                 print("exception: ", "Index error")
             except Exception as err_type:
@@ -448,16 +458,16 @@ class TablesWindow(Toplevel):
 
 if __name__ == "__main__":
 
-    root = Tk()
-    app = Window(root)
-
-    root.geometry("1200x600")
-    root.resizable(False, False)
-    root.mainloop()
+    # root = Tk()
+    # app = Window(root)
+    #
+    # root.geometry("1200x600")
+    # root.resizable(False, False)
+    # root.mainloop()
 
     # try:
-    #     tokens = generate_tokens('./programs/program.txt')
-    #     bottom_up_parser(tokens)
+        tokens = generate_tokens('./programs/program.txt')
+        bottom_up_parser(tokens)
     # except IndexError:
     #     print("exception: ", "Index error")
     # except Exception as err_type:
