@@ -287,10 +287,10 @@ def parser(tokens):
     tokens.append(['', '', '@', '', '', '', ''])
     stack_tkn_idn = [0, tokens[0][6], ]
     stack = ["@", "'" + tokens.pop(0)[2] + "'", ]
-    base = stack[1]
+    base = [stack[1], ]
     # while True:
     # while stack != ['@', 'program']:
-    for t in range(25):
+    for t in range(50):
         tkn_l = stack[-1]
         if stack_tkn_idn[-1] == 100:
             left_index = rules.index("'IDN'")
@@ -316,41 +316,66 @@ def parser(tokens):
         if bottom_up_rule_table[left_index][right_index] == '<':
             stack_tkn_idn.append(tokens[0][6])
             stack.append("'" + tokens.pop(0)[2] + "'")
-            base = tkn_r
+            base.append(tkn_r)
         elif bottom_up_rule_table[left_index][right_index] == '=':
             stack_tkn_idn.append(tokens[0][6])
             stack.append("'" + tokens.pop(0)[2] + "'")
         else:
             print(stack)
             replacement = ""
-            # base_index = stack.index(base)
-            for i in range(len(stack) - 1, -1, -1):
-                if stack_tkn_idn[i] == 100:
-                    tail = "'IDN'"
-                elif stack_tkn_idn[i] == 101:
-                    tail = "'CON'"
-                elif stack_tkn_idn[i] == 102:
-                    tail = "'LAB'"
-                else:
-                    tail = stack[i]
-                replacement = replacement.strip()
-                replacement = tail + ' ' + replacement
-                replacement = replacement.strip()
-                # print(base)
-                print(replacement)
+            if base:
+                base_index = stack.index(base[-1])
+                for i in range(len(stack) - 1, base_index - 1, -1):
+                    if stack_tkn_idn[i] == 100:
+                        tail = "'IDN'"
+                    elif stack_tkn_idn[i] == 101:
+                        tail = "'CON'"
+                    elif stack_tkn_idn[i] == 102:
+                        tail = "'LAB'"
+                    else:
+                        tail = stack[i]
+                    replacement = replacement.strip()
+                    replacement = tail + ' ' + replacement
+                    replacement = replacement.strip()
+                del base[-1]
+                    # print(replacement)
                 for rule in grammar:
                     for rule_variant in grammar[rule]:
                         if replacement == rule_variant:
-                            del stack_tkn_idn[i:]
+                            del stack_tkn_idn[base_index:]
                             stack_tkn_idn.append(0)
-                            del stack[i:]
+                            del stack[base_index:]
                             stack.append(rule)
                             # print(stack[i:])
                             # print(rule)
                             break
                     if replacement == rule_variant:
                         break
-                if replacement == rule_variant:
-                    break
-            # break
-    # print(stack)
+            else:
+                for i in range(len(stack) - 1, -1, -1):
+                    if stack_tkn_idn[i] == 100:
+                        tail = "'IDN'"
+                    elif stack_tkn_idn[i] == 101:
+                        tail = "'CON'"
+                    elif stack_tkn_idn[i] == 102:
+                        tail = "'LAB'"
+                    else:
+                        tail = stack[i]
+                    replacement = replacement.strip()
+                    replacement = tail + ' ' + replacement
+                    replacement = replacement.strip()
+                # print(replacement)
+                    for rule in grammar:
+                        for rule_variant in grammar[rule]:
+                            if replacement == rule_variant:
+                                del stack_tkn_idn[base_index:]
+                                stack_tkn_idn.append(0)
+                                del stack[base_index:]
+                                stack.append(rule)
+                                # print(stack[i:])
+                                # print(rule)
+                                break
+                        if replacement == rule_variant:
+                            break
+                    if replacement == rule_variant:
+                        break
