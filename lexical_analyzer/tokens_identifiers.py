@@ -42,3 +42,5 @@ tokens_identifiers = {
     'CON': 101,
     'LAB': 102,
 }
+
+tokens_identifiers_reversed = {val: key for key, val in tokens_identifiers.items()}
