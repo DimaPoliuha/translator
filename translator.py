@@ -209,7 +209,7 @@ class Window(Frame):
     def open_bottom_up_table(self):
         self.frame = Toplevel(self)
         self.frame.geometry("1300x700")
-        self.frame.title("Bottom up")
+        self.frame.title("Bottom up table")
 
         TableMargin = Frame(self.frame, width=1000)
         TableMargin.pack(side=LEFT)
@@ -234,6 +234,40 @@ class Window(Frame):
 
         for row in self.bottom_up_main_table:
             tree.insert("", "end", values=(row))
+
+    def open_bottom_up_parse_table(self, bottom_up_table):
+        self.frame = Toplevel(self)
+        self.frame.geometry("1300x700")
+        self.frame.title("Bottom up")
+
+        TableMargin = Frame(self.frame, width=1000)
+        TableMargin.pack(side=LEFT)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        columns=("num", "stack", "rel", "input tokens"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+
+        tree.heading('num', text="num", anchor=W)
+        tree.heading('stack', text="stack", anchor=W)
+        tree.heading('rel', text="rel", anchor=W)
+        tree.heading('input tokens', text="input tokens", anchor=W)
+
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=10, width=30)
+        tree.column('#2', stretch=NO, minwidth=100, width=400)
+        tree.column('#3', stretch=NO, minwidth=10, width=20)
+        tree.column('#4', stretch=NO, minwidth=100, width=10000)
+
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.pack()
+
+        for index, row in enumerate(bottom_up_table):
+            row.insert(0, index)
+            tree.insert("", "end", values=row)
 
     @staticmethod
     def open_tables_window():
@@ -286,20 +320,21 @@ class Window(Frame):
         if self.tokens is None:
             messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
         else:
-            bottom_up_parser(self.tokens)
+            bottom_up_parse_table, msg = bottom_up_parser(self.tokens)
+            if msg:
+                messagebox.showinfo("Bottom up exception", msg)
+            else:
+                messagebox.showinfo("Bottom up", "Success!")
+            self.open_bottom_up_parse_table(bottom_up_parse_table)
 
     def bottom_up_table(self):
-        # if self.tokens is None:
-        #     messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
-        # else:
-            try:
-                # tokens = generate_tokens('./programs/program.txt')
-                self.bottom_up_main_table, self.grammar_rules = bottom_up_table()
-            except IndexError:
-                print("exception: ", "Index error")
-            except Exception as err_type:
-                print("exception: ", str(err_type))
-            self.open_bottom_up_table()
+        try:
+            self.bottom_up_main_table, self.grammar_rules = bottom_up_table()
+        except IndexError:
+            print("exception: ", "Index error")
+        except Exception as err_type:
+            print("exception: ", str(err_type))
+        self.open_bottom_up_table()
 
 
 class TablesWindow(Toplevel):
@@ -458,17 +493,18 @@ class TablesWindow(Toplevel):
 
 if __name__ == "__main__":
 
-    # root = Tk()
-    # app = Window(root)
-    #
-    # root.geometry("1200x600")
-    # root.resizable(False, False)
-    # root.mainloop()
+    root = Tk()
+    app = Window(root)
 
-    # try:
-        tokens = generate_tokens('./programs/program.txt')
-        bottom_up_parser(tokens)
-    # except IndexError:
-    #     print("exception: ", "Index error")
-    # except Exception as err_type:
-    #     print("exception: ", str(err_type))
+    root.geometry("1200x600")
+    root.resizable(False, False)
+    root.mainloop()
+
+    # tokens = generate_tokens('./programs/program.txt')
+    # bottom_up_parser(tokens)
+    #
+    # tokens = generate_tokens('./programs/contains_error.txt')
+    # bottom_up_parser(tokens)
+    #
+    # tokens = generate_tokens('./programs/contains_errors.txt')
+    # bottom_up_parser(tokens)
