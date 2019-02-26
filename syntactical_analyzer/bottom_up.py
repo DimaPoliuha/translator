@@ -301,9 +301,6 @@ def parser(tokens):
         elif main_relation == '>':
             basis = []
             for i in range(len(stack) - 1, 0, -1):
-                if stack[i] == '#':
-                    print('!' * 20)
-                    break
                 if stack[i-1] == '#':
                     basis = stack[i:]
                 else:

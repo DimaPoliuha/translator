@@ -310,7 +310,7 @@ class Window(Frame):
             if not automatic_table:
                 messagebox.showinfo("Automatic machine exception", "Exception in state 1\nCheck begin of the program!")
             elif msg and not (automatic_table[-1][1] == 'end' and automatic_table[-1][0] == 8):
-                print(automatic_table[-1][1])
+                # print(automatic_table[-1][1])
                 messagebox.showinfo("Automatic machine exception", msg)
             else:
                 messagebox.showinfo("Automatic machine", "Success!")
@@ -331,9 +331,9 @@ class Window(Frame):
         try:
             self.bottom_up_main_table, self.grammar_rules = bottom_up_table()
         except IndexError:
-            print("exception: ", "Index error")
+            messagebox.showinfo("Bottom up table exception", "Index error")
         except Exception as err_type:
-            print("exception: ", str(err_type))
+            messagebox.showinfo("Bottom up table exception", str(err_type))
         self.open_bottom_up_table()
 
 
