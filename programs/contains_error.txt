@@ -1,0 +1,17 @@
+    float a, d, sum;
+    int q;
+    int i;
+begin
+    q = 56;
+    a = 1.2;
+    d = .7;
+    if a > 1 and q < 50 then
+        goto #f;
+    fi;
+    a = (q + a + d) / 100;
+    #f:
+        sum = a / d + 1.2 * q;
+    for if i = 20 by 1 to 30 do
+        cout << i;
+    rof;
+end
