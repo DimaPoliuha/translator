@@ -113,6 +113,10 @@ rules = None
 rule_var_list = grammar["variables_list"].copy()
 
 
+def get_grammar():
+    return grammar
+
+
 def get_first_plus(index):
     first_tokens = set()
     main_rule = rules_array[index]

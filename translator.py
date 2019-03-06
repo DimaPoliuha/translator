@@ -15,6 +15,7 @@ from syntactical_analyzer.automatic_machine import parser as automatic_parser
 from syntactical_analyzer.automatic_machine import automatic_machine_table
 from syntactical_analyzer.bottom_up import parser as bottom_up_parser
 from syntactical_analyzer.bottom_up import get_table as bottom_up_table
+from syntactical_analyzer.bottom_up import get_grammar
 
 
 # GUI
@@ -30,6 +31,7 @@ class Window(Frame):
         self.text_editor = Text(self)
         self.file_path = None
         self.tokens = None
+        self.grammar = None
 
         self.init_window()
 
@@ -53,6 +55,9 @@ class Window(Frame):
 
         bottom_up_btn = Button(toolbar, text="Bottom up", command=self.bottom_up, bd=1, bg='white')
         bottom_up_btn.pack(side=LEFT)
+
+        grammar_btn = Button(toolbar, text="Grammar", command=self.show_grammar, bd=1, bg='white')
+        grammar_btn.pack(side=RIGHT)
 
         bottom_up_table_btn = Button(toolbar, text="Bottom up table", command=self.bottom_up_table, bd=1, bg='white')
         bottom_up_table_btn.pack(side=RIGHT)
@@ -205,6 +210,42 @@ class Window(Frame):
                 subprogram = 'exit' if automatic_machine_table[state][label][2] else 'err'
 
                 tree.insert("", "end", values=(state, lab, stack, next_state, subprogram))
+
+    def show_grammar(self):
+        self.frame = Toplevel(self)
+        self.frame.geometry("770x600")
+        self.frame.title("Grammar")
+
+        TableMargin = Frame(self.frame, width=1000)
+        TableMargin.pack(side=LEFT)
+        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+        tree = Treeview(TableMargin,
+                        columns=("rule", "tokens"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+
+        tree.heading('rule', text="rule", anchor=W)
+        tree.heading('tokens', text="tokens", anchor=W)
+
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=10, width=150)
+        tree.column('#2', stretch=NO, minwidth=100, width=600)
+
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.pack()
+
+        if not self.grammar:
+            self.grammar = get_grammar()
+
+        for key in self.grammar:
+            rules = ''
+            for variant in self.grammar[key]:
+                rules += variant + ' | '
+            rules = rules[:-3]
+            tree.insert("", "end", values=(key, rules))
 
     def open_bottom_up_table(self):
         self.frame = Toplevel(self)
