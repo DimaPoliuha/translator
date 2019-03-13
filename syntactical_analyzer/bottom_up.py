@@ -283,8 +283,10 @@ def parser(tokens):
         bottom_up_rule_table, rules = grammar_parser()
 
     pure_tokens = ["'" + tokens_identifiers[token[6]] + "'" for token in tokens]
+    pure_tokens_indexes = list(range(len(pure_tokens)))
     pure_tokens.append('#')
     stack = ['#', pure_tokens.pop(0)]
+    pure_tokens_indexes.pop(0)
     syntactical_table = [['#', '<', stack[-1]], ]
     err_msg = ''
 
@@ -300,6 +302,7 @@ def parser(tokens):
             if pure_tokens[0] == "'begin'":
                 del grammar["variables_list"]
             stack.append(pure_tokens.pop(0))
+            pure_tokens_indexes.pop(0)
             syntactical_table.append([' '.join(stack), main_relation, ' '.join(pure_tokens)])
 
         elif main_relation == '>':
@@ -321,10 +324,10 @@ def parser(tokens):
                         stack.append(rule)
                         syntactical_table.append([' '.join(stack), main_relation, ' '.join(pure_tokens)])
                         break
-                if ''.join(basis) == rule_variant:
+                if ' '.join(basis) == rule_variant:
                     break
         else:
-            err_msg = 'Empty cell in table between {0} and {1}'.format(stack[-1], pure_tokens[0])
+            err_msg = 'Empty cell in table between {0} and {1}\nLine: {2}'.format(stack[-1], pure_tokens[0], tokens[pure_tokens_indexes[0]][1])
             break
     grammar["variables_list"] = rule_var_list
     return syntactical_table, err_msg
