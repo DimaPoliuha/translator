@@ -259,19 +259,18 @@ def grammar_parser():
 def get_table():
     global bottom_up_rule_table
     global rules
-    if not bottom_up_rule_table:
 
-        bottom_up_rule_table, rules = grammar_parser()
+    bottom_up_rule_table, rules = grammar_parser()
 
-        with open('./papers/bottom_up.csv', 'w', newline=''):
-            pass
+    with open('./papers/bottom_up.csv', 'w', newline=''):
+        pass
 
-        with open('./papers/bottom_up.csv', 'a', newline='') as f:
-            rules.insert(0, '')
-            csv.writer(f).writerow(rules)
-            for index, row in enumerate(bottom_up_rule_table):
-                row.insert(0, rules[index + 1])
-                csv.writer(f).writerow(row)
+    with open('./papers/bottom_up.csv', 'a', newline='') as f:
+        rules.insert(0, '')
+        csv.writer(f).writerow(rules)
+        for index, row in enumerate(bottom_up_rule_table):
+            row.insert(0, rules[index + 1])
+            csv.writer(f).writerow(row)
     return bottom_up_rule_table, rules
 
 
@@ -279,8 +278,7 @@ def parser(tokens):
     global bottom_up_rule_table
     global rules
     global rule_var_list
-    if not bottom_up_rule_table:
-        bottom_up_rule_table, rules = grammar_parser()
+    bottom_up_rule_table, rules = grammar_parser()
 
     pure_tokens = ["'" + tokens_identifiers[token[6]] + "'" for token in tokens]
     pure_tokens_indexes = list(range(len(pure_tokens)))

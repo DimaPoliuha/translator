@@ -14,7 +14,7 @@ from syntactical_analyzer.recursive_descent import parser as recursive_parser
 from syntactical_analyzer.automatic_machine import parser as automatic_parser
 from syntactical_analyzer.automatic_machine import automatic_machine_table
 from syntactical_analyzer.bottom_up import parser as bottom_up_parser
-from syntactical_analyzer.bottom_up import get_table as bottom_up_table
+from syntactical_analyzer.bottom_up import get_table as relation_table
 from syntactical_analyzer.bottom_up import get_grammar
 
 
@@ -32,6 +32,8 @@ class Window(Frame):
         self.file_path = None
         self.tokens = None
         self.grammar = None
+        self.bottom_up_main_table = None
+        self.grammar_rules = None
 
         self.init_window()
 
@@ -370,7 +372,7 @@ class Window(Frame):
 
     def bottom_up_table(self):
         try:
-            self.bottom_up_main_table, self.grammar_rules = bottom_up_table()
+            self.bottom_up_main_table, self.grammar_rules = relation_table()
         except IndexError:
             messagebox.showinfo("Bottom up table exception", "Index error")
         except Exception as err_type:
