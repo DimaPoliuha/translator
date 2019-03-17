@@ -324,6 +324,9 @@ def parser(tokens):
                         break
                 if ' '.join(basis) == rule_variant:
                     break
+            if ' '.join(basis) != rule_variant:
+                err_msg = 'Incorrect end of program {0}'.format(stack[-1])
+                break
         else:
             err_msg = 'Empty cell in table between {0} and {1}\nLine: {2}'.format(stack[-1], pure_tokens[0], tokens[pure_tokens_indexes[0]][1])
             break
