@@ -349,4 +349,6 @@ def parser(tokens):
     grammar["variables_list"] = rule_var_list
     for i in range(len(syntactical_table) - 1):
         syntactical_table[i][1] = syntactical_table[i+1][1]
+    if err_msg:
+        syntactical_table[-1][1] = ''
     return syntactical_table, err_msg
