@@ -279,56 +279,74 @@ def parser(tokens):
     global rules
     global rule_var_list
     bottom_up_rule_table, rules = grammar_parser()
+    tokens = [[token[0], token[1], token[2], token[3], token[4], token[5], token[6], "'" + tokens_identifiers[token[6]] + "'"] for token in tokens]
 
-    pure_tokens = ["'" + tokens_identifiers[token[6]] + "'" for token in tokens]
-    pure_tokens_indexes = list(range(len(pure_tokens)))
-    pure_tokens.append('#')
-    stack = ['#', pure_tokens.pop(0)]
-    pure_tokens_indexes.pop(0)
-    syntactical_table = [['#', '<', stack[-1]], ]
+    tokens.append([None, None, '#', None, None, None, None, '#'])
+    tokens.insert(0, [None, None, '#', None, None, None, None, '#'])
+    output_right_arr = [str(token[2]) for token in tokens]
+    syntactical_table = [['', '', ' '.join(output_right_arr)]]
+
+    stack = [tokens.pop(0)]
+    output_right_arr = [str(token[2]) for token in tokens]
+    syntactical_table.append(['#', '<', ' '.join(output_right_arr)])
+
+    stack.append(tokens.pop(0))
+    output_left_arr = [str(stk[2]) for stk in stack]
+    output_right_arr = [str(token[2]) for token in tokens]
+    syntactical_table.append([' '.join(output_left_arr), '<', ' '.join(output_right_arr)])
+
     err_msg = ''
 
-    while len(stack) != 2 or len(pure_tokens) != 1:
-        left_i = rules.index(stack[-1])
-        if pure_tokens[0] == '#':
+    while len(stack) != 2 or len(tokens) != 1:
+        left_i = rules.index(stack[-1][-1])
+        if tokens[0][-1] == '#':
             main_relation = '>'
         else:
-            right_i = rules.index(pure_tokens[0])
+            right_i = rules.index(tokens[0][-1])
             main_relation = bottom_up_rule_table[left_i][right_i]
 
         if main_relation in ('<', '='):
-            if pure_tokens[0] == "'begin'":
+            if tokens[0][-1] == "'begin'":
                 del grammar["variables_list"]
-            stack.append(pure_tokens.pop(0))
-            pure_tokens_indexes.pop(0)
-            syntactical_table.append([' '.join(stack), main_relation, ' '.join(pure_tokens)])
+            stack.append(tokens.pop(0))
+
+            output_left_arr = [str(stk[2]) for stk in stack]
+            output_right_arr = [str(token[2]) for token in tokens]
+            syntactical_table.append([' '.join(output_left_arr), main_relation, ' '.join(output_right_arr)])
 
         elif main_relation == '>':
             basis = []
             for i in range(len(stack) - 1, 0, -1):
-                if stack[i-1] == '#':
+                if stack[i-1][-1] == '#':
                     basis = stack[i:]
+                    basis = [bss[-1] for bss in basis]
                 else:
-                    stack_left_i = rules.index(stack[i - 1])
-                    stack_right_i = rules.index(stack[i])
+                    stack_left_i = rules.index(stack[i - 1][-1])
+                    stack_right_i = rules.index(stack[i][-1])
                     relation = bottom_up_rule_table[stack_left_i][stack_right_i]
                     if relation == '<':
                         basis = stack[i:]
+                        basis = [bss[-1] for bss in basis]
                         break
             for rule in sorted(grammar.keys(), reverse=True):
                 for rule_variant in grammar[rule]:
                     if ' '.join(basis) == rule_variant:
                         del stack[i:]
-                        stack.append(rule)
-                        syntactical_table.append([' '.join(stack), main_relation, ' '.join(pure_tokens)])
+                        stack.append([None, None, rule, None, None, None, None, rule])
+                        output_left_arr = [str(stk[2]) for stk in stack]
+                        output_right_arr = [str(token[2]) for token in tokens]
+
+                        syntactical_table.append([' '.join(output_left_arr), main_relation, ' '.join(output_right_arr)])
                         break
                 if ' '.join(basis) == rule_variant:
                     break
             if ' '.join(basis) != rule_variant:
-                err_msg = 'Incorrect end of program {0}'.format(stack[-1])
+                err_msg = 'Incorrect end of program {0}'.format(stack[-1][-1])
                 break
         else:
-            err_msg = 'Empty cell in table between {0} and {1}\nLine: {2}'.format(stack[-1], pure_tokens[0], tokens[pure_tokens_indexes[0]][1])
+            err_msg = 'Empty cell in table between {0} and {1}\nLine: {2}'.format(stack[-1][-1], tokens[0][-1], tokens[0][1])
             break
     grammar["variables_list"] = rule_var_list
+    for i in range(len(syntactical_table) - 1):
+        syntactical_table[i][1] = syntactical_table[i+1][1]
     return syntactical_table, err_msg
