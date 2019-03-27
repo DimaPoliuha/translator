@@ -288,19 +288,21 @@ class Window(Frame):
         scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
         scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
         tree = Treeview(TableMargin,
-                        columns=("num", "stack", "rel", "input tokens"),
+                        columns=("num", "stack", "rel", "input tokens", "poliz"),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
 
         tree.heading('num', text="num", anchor=W)
         tree.heading('stack', text="stack", anchor=W)
         tree.heading('rel', text="rel", anchor=W)
         tree.heading('input tokens', text="input tokens", anchor=W)
+        tree.heading('poliz', text="poliz", anchor=W)
 
         tree.column('#0', stretch=NO, minwidth=0, width=0)
         tree.column('#1', stretch=NO, minwidth=10, width=30)
         tree.column('#2', stretch=NO, minwidth=100, width=400)
         tree.column('#3', stretch=NO, minwidth=10, width=20)
-        tree.column('#4', stretch=NO, minwidth=100, width=10000)
+        tree.column('#4', stretch=NO, minwidth=100, width=450)  # 10000
+        tree.column('#5', stretch=NO, minwidth=100, width=400)
 
         scrollbary.config(command=tree.yview)
         scrollbary.pack(side=RIGHT, fill=Y)

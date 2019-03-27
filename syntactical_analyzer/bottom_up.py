@@ -274,6 +274,27 @@ def get_table():
     return bottom_up_rule_table, rules
 
 
+def get_poliz_sign(basis, rule, return_val):
+    basis = ' '.join(basis)
+    print(basis, '   |   ', rule)
+    if basis == "expression '+' T1" and rule == 'expression':
+        return '+'
+    elif basis == "expression '-' T1" and rule == 'expression':
+        return '-'
+    elif basis == "'-' T1" and rule == 'expression':
+        return '@'
+    elif basis == "T '*' F" and rule == 'T':
+        return '*'
+    elif basis == "T '/' F" and rule == 'T':
+        return '/'
+    elif basis == "'IDN'" and rule == 'F':
+        return return_val
+    elif basis == "'CON'" and rule == 'F':
+        return return_val
+    else:
+        return ''
+
+
 def parser(tokens):
     global bottom_up_rule_table
     global rules
@@ -284,18 +305,19 @@ def parser(tokens):
     tokens.append([None, None, '#', None, None, None, None, '#'])
     tokens.insert(0, [None, None, '#', None, None, None, None, '#'])
     output_right_arr = [str(token[2]) for token in tokens]
-    syntactical_table = [['', '', ' '.join(output_right_arr)]]
+    syntactical_table = [['', '', ' '.join(output_right_arr), '']]
 
     stack = [tokens.pop(0)]
     output_right_arr = [str(token[2]) for token in tokens]
-    syntactical_table.append(['#', '<', ' '.join(output_right_arr)])
+    syntactical_table.append(['#', '<', ' '.join(output_right_arr), ''])
 
     stack.append(tokens.pop(0))
     output_left_arr = [str(stk[2]) for stk in stack]
     output_right_arr = [str(token[2]) for token in tokens]
-    syntactical_table.append([' '.join(output_left_arr), '<', ' '.join(output_right_arr)])
+    syntactical_table.append([' '.join(output_left_arr), '<', ' '.join(output_right_arr), ''])
 
     err_msg = ''
+    poliz_arr = ['', ]
 
     while len(stack) != 2 or len(tokens) != 1:
         left_i = rules.index(stack[-1][-1])
@@ -312,7 +334,7 @@ def parser(tokens):
 
             output_left_arr = [str(stk[2]) for stk in stack]
             output_right_arr = [str(token[2]) for token in tokens]
-            syntactical_table.append([' '.join(output_left_arr), main_relation, ' '.join(output_right_arr)])
+            syntactical_table.append([' '.join(output_left_arr), main_relation, ' '.join(output_right_arr), ' '.join(poliz_arr)])
 
         elif main_relation == '>':
             basis = []
@@ -331,12 +353,12 @@ def parser(tokens):
             for rule in sorted(grammar.keys(), reverse=True):
                 for rule_variant in grammar[rule]:
                     if ' '.join(basis) == rule_variant:
+                        poliz_arr.append(get_poliz_sign(basis, rule, stack[-1][2]))
                         del stack[i:]
                         stack.append([None, None, rule, None, None, None, None, rule])
                         output_left_arr = [str(stk[2]) for stk in stack]
                         output_right_arr = [str(token[2]) for token in tokens]
-
-                        syntactical_table.append([' '.join(output_left_arr), main_relation, ' '.join(output_right_arr)])
+                        syntactical_table.append([' '.join(output_left_arr), main_relation, ' '.join(output_right_arr), ' '.join(poliz_arr)])
                         break
                 if ' '.join(basis) == rule_variant:
                     break

@@ -1,0 +1,6 @@
+    float a, b, c, d, sum;
+    int q;
+    int i;
+begin
+    sum = a * (-b + c);
+end
