@@ -1,5 +1,8 @@
-# token => token id
+"""
+Tokens identifiers
+"""
 tokens_identifiers = {
+    # token => token id
     'int': 1,
     'float': 2,
     'begin': 3,

@@ -8,14 +8,12 @@ from functools import partial
 import csv
 import os
 
-from lexical_analyzer.analyzer import generate_tokens
-from lexical_analyzer.tokens_identifiers import tokens_identifiers
-from syntactical_analyzer.recursive_descent import parser as recursive_parser
-from syntactical_analyzer.automatic_machine import parser as automatic_parser
-from syntactical_analyzer.automatic_machine import automatic_machine_table
-from syntactical_analyzer.bottom_up import parser as bottom_up_parser
-from syntactical_analyzer.bottom_up import get_table as relation_table
-from syntactical_analyzer.bottom_up import get_grammar
+from lexical_analyzer.analyzer import LexicalAnalyzer
+from tokens.tokens_identifiers import tokens_identifiers
+from syntactical_analyzers.recursive_descent import RecursiveDescent
+from syntactical_analyzers.automatic_machine import AutomaticMachine
+from syntactical_analyzers.bottom_up import BottomUp
+from poliz.poliz import Poliz
 
 
 # GUI
@@ -26,14 +24,19 @@ class Window(Frame):
 
     def __init__(self, master=None):
         super().__init__(master)
+
+        self.lexical_analyzer = LexicalAnalyzer()
+        self.recursive_descent = RecursiveDescent()
+        self.automatic_machine = AutomaticMachine()
+        self.bottom_up = BottomUp()
+        self.poliz = Poliz()
+
         # global params
         self.master = master
         self.text_editor = Text(self)
         self.file_path = None
         self.tokens = None
-        self.grammar = None
-        self.bottom_up_main_table = None
-        self.grammar_rules = None
+        self.frame = None
 
         self.init_window()
 
@@ -41,33 +44,30 @@ class Window(Frame):
         self.master.title("Translator")
         self.pack(side=BOTTOM, fill=BOTH, expand=1)
         self.init_menu()
-        self.init_hotkeys()
+        self.init_hot_keys()
 
         toolbar = Frame(bg='#d7d8e0', height=60)
         toolbar.pack(side=TOP, fill=X)
 
-        lexical_analyse_btn = Button(toolbar, text="Lexical analyse", command=self.lexical_analyzer, bd=1, bg='white')
-        lexical_analyse_btn.pack(side=LEFT)
-
-        recursive_descent_btn = Button(toolbar, text="Recursive descent", command=self.recursive_descent, bd=1, bg='white')
-        recursive_descent_btn.pack(side=LEFT)
-
-        automatic_machine_btn = Button(toolbar, text="Automatic machine", command=self.automatic_machine, bd=1, bg='white')
-        automatic_machine_btn.pack(side=LEFT)
-
-        bottom_up_btn = Button(toolbar, text="Bottom up", command=self.bottom_up, bd=1, bg='white')
-        bottom_up_btn.pack(side=LEFT)
+        run_btn = Button(toolbar, text="Run", command=self.run, bd=1, bg='white')
+        run_btn.pack(side=LEFT)
 
         grammar_btn = Button(toolbar, text="Grammar", command=self.show_grammar, bd=1, bg='white')
         grammar_btn.pack(side=RIGHT)
 
-        bottom_up_table_btn = Button(toolbar, text="Bottom up table", command=self.bottom_up_table, bd=1, bg='white')
-        bottom_up_table_btn.pack(side=RIGHT)
+        # bottom_up_grammar_table_btn = Button(
+        #     toolbar, text="Bottom up table", command=self.open_bottom_up_grammar_table, bd=1, bg='white'
+        # )
+        # bottom_up_grammar_table_btn.pack(side=RIGHT)
 
-        open_automatic_machine_table_btn = Button(toolbar, text="Automatic machine table", command=self.open_automatic_machine_table, bd=1, bg='white')
+        open_automatic_machine_table_btn = Button(
+            toolbar, text="Automatic machine table", command=self.open_automatic_machine_table, bd=1, bg='white'
+        )
         open_automatic_machine_table_btn.pack(side=RIGHT)
 
-        open_tables_btn = Button(toolbar, text="Open lexical tables", command=self.open_tables_window, bd=1, bg='white')
+        open_tables_btn = Button(
+            toolbar, text="Open lexical tables", command=self.open_tables_window, bd=1, bg='white'
+        )
         open_tables_btn.pack(side=RIGHT)
 
         self.text_editor.config(autoseparators=True, undo=True, width=144, height=35)
@@ -89,24 +89,35 @@ class Window(Frame):
         # added "file_menu" to our menu
         menu.add_cascade(label="File", menu=file_menu)
 
+        run_menu = Menu(menu, tearoff=0)
+        run_menu.add_command(label="Run", command=self.run, accelerator="Ctrl+R")
+        run_menu.add_command(label="Lexical analyse", command=self.run_lexical_analyzer)
+        run_menu.add_command(label="Recursive descent", command=self.run_recursive_descent)
+        run_menu.add_command(label="Automatic machine", command=self.run_automatic_machine)
+        run_menu.add_command(label="Bottom up", command=self.run_bottom_up)
+        run_menu.add_command(label="Poliz", command=self.run_poliz)
+        menu.add_cascade(label="Run", menu=run_menu)
+
         help_menu = Menu(menu, tearoff=0)
         help_menu.add_command(label="How to use")
         help_menu.add_command(label="About us", command=self.help_text)
         menu.add_cascade(label="Help", menu=help_menu)
 
-    def init_hotkeys(self):
+    def init_hot_keys(self):
         self.master.bind("<Control-o>", self.open_file)
         self.master.bind("<Control-O>", self.open_file)
         self.master.bind("<Control-S>", self.save_file)
         self.master.bind("<Control-s>", self.save_file)
         self.master.bind("<Control-E>", self.save_file_as)
         self.master.bind("<Control-e>", self.save_file_as)
+        self.master.bind("<Control-R>", self.run)
+        self.master.bind("<Control-r>", self.run)
 
     def help_text(self):
         text = Label(self, text="Help!!!!!!!!!")
         text.pack()
 
-    def open_file(self, event=None):
+    def open_file(self, *args, **kwargs):
         self.file_path = filedialog.askopenfilename(
             initialdir="./programs/",
             title="Select file",
@@ -121,17 +132,17 @@ class Window(Frame):
         except FileNotFoundError:
             messagebox.showinfo("File open exception:", "File not found")
 
-    def save_file(self, event=None):
+    def save_file(self, *args, **kwargs):
         if self.file_path is None:
             self.save_file_as()
         else:
             self.save_file_as(file_path=self.file_path)
 
-    def save_file_as(self, event=None, file_path=None):
+    def save_file_as(self, file_path=None, *args, **kwargs):
         text = self.text_editor.get("1.0", "end-1c")
         if file_path is None:
             self.file_path = filedialog.asksaveasfilename(
-                initialdir="./",
+                initialdir="./programs/",
                 title="Save as",
                 filetypes=(("txt files", "*.txt"), ("all files", "*.*")),
                 defaultextension=".txt",
@@ -148,11 +159,11 @@ class Window(Frame):
         self.frame.title("Automatic machine")
         self.frame.resizable(False, False)
 
-        TableMargin = Frame(self.frame, width=500)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
+        table_margin = Frame(self.frame, width=500)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
                         columns=("State", "Label", "Stack"),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
         scrollbary.config(command=tree.yview)
@@ -177,11 +188,11 @@ class Window(Frame):
         self.frame.title("Automatic machine")
         self.frame.resizable(False, False)
 
-        TableMargin = Frame(self.frame, width=500)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
+        table_margin = Frame(self.frame, width=500)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
                         columns=("State", "Label", "Stack", "Next state", "!="),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
         scrollbary.config(command=tree.yview)
@@ -201,15 +212,19 @@ class Window(Frame):
         tree.column('#5', stretch=NO, minwidth=0, width=70)
         tree.pack()
 
-        for state in automatic_machine_table.keys():
-            for label in automatic_machine_table[state].keys():
+        for state in self.automatic_machine.automatic_machine_table.keys():
+            for label in self.automatic_machine.automatic_machine_table[state].keys():
                 lab = ''
                 if label:
                     lab = list(tokens_identifiers.keys())[list(tokens_identifiers.values()).index(label)]
 
-                stack = automatic_machine_table[state][label][0] if automatic_machine_table[state][label][0] else ''
-                next_state = automatic_machine_table[state][label][1] if automatic_machine_table[state][label][1] else ''
-                subprogram = 'exit' if automatic_machine_table[state][label][2] else 'err'
+                stack = self.automatic_machine.automatic_machine_table[state][label][0]
+                if not stack:
+                    stack = ''
+                next_state = self.automatic_machine.automatic_machine_table[state][label][1]
+                if not next_state:
+                    next_state = ''
+                subprogram = 'exit' if self.automatic_machine.automatic_machine_table[state][label][2] else 'err'
 
                 tree.insert("", "end", values=(state, lab, stack, next_state, subprogram))
 
@@ -218,11 +233,11 @@ class Window(Frame):
         self.frame.geometry("770x600")
         self.frame.title("Grammar")
 
-        TableMargin = Frame(self.frame, width=1000)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
+        table_margin = Frame(self.frame, width=1000)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
                         columns=("rule", "tokens"),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
 
@@ -239,26 +254,23 @@ class Window(Frame):
         scrollbarx.pack(side=BOTTOM, fill=X)
         tree.pack()
 
-        if not self.grammar:
-            self.grammar = get_grammar()
-
-        for key in self.grammar:
+        for key in self.bottom_up.grammar:
             rules = ''
-            for variant in self.grammar[key]:
+            for variant in self.bottom_up.grammar[key]:
                 rules += variant + ' | '
             rules = rules[:-3]
             tree.insert("", "end", values=(key, rules))
 
-    def open_bottom_up_table(self):
+    def open_bottom_up_grammar_table(self):
         self.frame = Toplevel(self)
         self.frame.geometry("1300x700")
         self.frame.title("Bottom up table")
 
-        TableMargin = Frame(self.frame, width=1000)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
+        table_margin = Frame(self.frame, width=1000)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
 
         tree["columns"] = tuple(range(1, 68))
@@ -266,7 +278,7 @@ class Window(Frame):
         tree.heading(1, text="", anchor=W)
         tree.column(1, stretch=NO, minwidth=20, width=70)
         for i in range(2, 68):
-            tree.heading(i, text=self.grammar_rules[i-1], anchor=W)
+            tree.heading(i, text=self.bottom_up.rules_array[i-1], anchor=W)
             tree.column(i, stretch=NO, minwidth=20, width=70)
 
         scrollbary.config(command=tree.yview)
@@ -275,34 +287,32 @@ class Window(Frame):
         scrollbarx.pack(side=BOTTOM, fill=X)
         tree.pack()
 
-        for row in self.bottom_up_main_table:
-            tree.insert("", "end", values=(row))
+        for row in self.bottom_up.bottom_up_grammar_table:
+            tree.insert("", "end", values=row)
 
     def open_bottom_up_parse_table(self, bottom_up_table):
         self.frame = Toplevel(self)
         self.frame.geometry("1300x700")
         self.frame.title("Bottom up")
 
-        TableMargin = Frame(self.frame, width=1000)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
-                        columns=("num", "stack", "rel", "input tokens", "poliz"),
+        table_margin = Frame(self.frame, width=1000)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
+                        columns=("num", "stack", "rel", "input tokens"),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
 
         tree.heading('num', text="num", anchor=W)
         tree.heading('stack', text="stack", anchor=W)
         tree.heading('rel', text="rel", anchor=W)
         tree.heading('input tokens', text="input tokens", anchor=W)
-        tree.heading('poliz', text="poliz", anchor=W)
 
         tree.column('#0', stretch=NO, minwidth=0, width=0)
         tree.column('#1', stretch=NO, minwidth=10, width=30)
         tree.column('#2', stretch=NO, minwidth=100, width=400)
         tree.column('#3', stretch=NO, minwidth=10, width=20)
-        tree.column('#4', stretch=NO, minwidth=100, width=450)  # 10000
-        tree.column('#5', stretch=NO, minwidth=100, width=400)
+        tree.column('#4', stretch=NO, minwidth=100, width=10000)
 
         scrollbary.config(command=tree.yview)
         scrollbary.pack(side=RIGHT, fill=Y)
@@ -314,11 +324,45 @@ class Window(Frame):
             row.insert(0, index)
             tree.insert("", "end", values=row)
 
+    def open_poliz_table(self, poliz_table):
+        self.frame = Toplevel(self)
+        self.frame.geometry("1300x700")
+        self.frame.title("Poliz")
+
+        table_margin = Frame(self.frame, width=1000)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
+                        columns=('num', "input tokens", "stack", "poliz"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+
+        tree.heading('num', text="num", anchor=W)
+        tree.heading('input tokens', text="input tokens", anchor=W)
+        tree.heading('stack', text="stack", anchor=W)
+        tree.heading('poliz', text="poliz", anchor=W)
+
+        tree.column('#0', stretch=NO, minwidth=0, width=0)
+        tree.column('#1', stretch=NO, minwidth=10, width=30)
+        tree.column('#2', stretch=NO, minwidth=100, width=400)
+        tree.column('#3', stretch=NO, minwidth=10, width=200)
+        tree.column('#4', stretch=NO, minwidth=100, width=10000)
+
+        scrollbary.config(command=tree.yview)
+        scrollbary.pack(side=RIGHT, fill=Y)
+        scrollbarx.config(command=tree.xview)
+        scrollbarx.pack(side=BOTTOM, fill=X)
+        tree.pack()
+
+        for index, row in enumerate(poliz_table):
+            row.insert(0, index)
+            tree.insert("", "end", values=row)
+
     @staticmethod
     def open_tables_window():
         TablesWindow()
 
-    def lexical_analyzer(self):
+    def run_lexical_analyzer(self, silent=False):
         if self.file_path is None:
             text = self.text_editor.get("1.0", "end-1c")
             if text:
@@ -326,60 +370,63 @@ class Window(Frame):
             else:
                 self.open_file()
         try:
-            self.tokens = generate_tokens(self.file_path)
+            self.tokens = self.lexical_analyzer(self.file_path)
         except IndexError:
             messagebox.showinfo("Lexical analyzer exception", "Index error")
         except Exception as err_type:
             messagebox.showinfo("Lexical analyzer exception", str(err_type))
         else:
-            messagebox.showinfo("Lexical analyzer", "Success!")
+            if not silent:
+                messagebox.showinfo("Lexical analyzer", "Success!")
 
-    def recursive_descent(self):
-        if self.tokens is None:
-            messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
+    def run_recursive_descent(self, silent=False):
+        self.run_lexical_analyzer(silent=True)
+
+        try:
+            self.recursive_descent(self.tokens)
+        except IndexError:
+            messagebox.showinfo("Recursive descent exception", "Index error (Program without 'end')")
+        except Exception as err_type:
+            messagebox.showinfo("Recursive descent exception", str(err_type))
         else:
-            try:
-                recursive_parser(self.tokens)
-            except IndexError:
-                messagebox.showinfo("Recursive descent exception", "Index error (Program without 'end')")
-            except Exception as err_type:
-                messagebox.showinfo("Recursive descent exception", str(err_type))
-            else:
+            if not silent:
                 messagebox.showinfo("Recursive descent", "Success!")
 
-    def automatic_machine(self):
-        if self.tokens is None:
-            messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
+    def run_automatic_machine(self, silent=False):
+        self.run_lexical_analyzer(silent=True)
+
+        automatic_table, msg = self.automatic_machine(self.tokens)
+        if not automatic_table:
+            messagebox.showinfo("Automatic machine exception", "Exception in state 1\nCheck begin of the program!")
+        elif not (automatic_table[-1][1] == 'end' and automatic_table[-1][0] == 8):
+            messagebox.showinfo("Automatic machine exception", 'Program without end, or incorrect last state')
         else:
-            automatic_table, msg = automatic_parser(self.tokens)
-            if not automatic_table:
-                messagebox.showinfo("Automatic machine exception", "Exception in state 1\nCheck begin of the program!")
-            elif msg and not (automatic_table[-1][1] == 'end' and automatic_table[-1][0] == 8):
-                # print(automatic_table[-1][1])
-                messagebox.showinfo("Automatic machine exception", msg)
-            else:
+            if not silent:
                 messagebox.showinfo("Automatic machine", "Success!")
+        if not silent:
             self.open_automatic_table(automatic_table)
 
-    def bottom_up(self):
-        if self.tokens is None:
-            messagebox.showinfo("Syntactical analyzer exception", "You need to run lexical analyzer first")
+    def run_bottom_up(self, silent=False):
+        self.run_lexical_analyzer(silent=True)
+
+        bottom_up_parse_table, msg = self.bottom_up(self.tokens)
+        if msg:
+            messagebox.showinfo("Bottom up exception", msg)
         else:
-            bottom_up_parse_table, msg = bottom_up_parser(self.tokens)
-            if msg:
-                messagebox.showinfo("Bottom up exception", msg)
-            else:
+            if not silent:
                 messagebox.showinfo("Bottom up", "Success!")
+        if not silent:
             self.open_bottom_up_parse_table(bottom_up_parse_table)
 
-    def bottom_up_table(self):
-        try:
-            self.bottom_up_main_table, self.grammar_rules = relation_table()
-        except IndexError:
-            messagebox.showinfo("Bottom up table exception", "Index error")
-        except Exception as err_type:
-            messagebox.showinfo("Bottom up table exception", str(err_type))
-        self.open_bottom_up_table()
+    def run_poliz(self):
+        self.run_bottom_up(silent=True)
+        poliz_table = self.poliz(self.tokens)
+        self.open_poliz_table(poliz_table)
+
+    def run(self, *args, **kwargs):
+        self.run_lexical_analyzer(silent=True)
+        self.run_bottom_up(silent=True)
+        self.run_poliz()
 
 
 class TablesWindow(Toplevel):
@@ -422,11 +469,11 @@ class TablesWindow(Toplevel):
         self.lab_table(program_name)
 
     def tokens_table(self, program_name):
-        TableMargin = Frame(self.frame, width=500)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
+        table_margin = Frame(self.frame, width=500)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
                         columns=("Token number", "Line number", "Token", "IDN id", "CON id", "LAB id", "TOK id"),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
         scrollbary.config(command=tree.yview)
@@ -456,11 +503,11 @@ class TablesWindow(Toplevel):
                 tree.insert("", "end", values=(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
     def idn_table(self, program_name):
-        TableMargin = Frame(self.frame, width=300)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
+        table_margin = Frame(self.frame, width=300)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
                         columns=("Id", "Name", "Value", "Type"),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
         scrollbary.config(command=tree.yview)
@@ -486,11 +533,11 @@ class TablesWindow(Toplevel):
                                                ))
 
     def con_table(self, program_name):
-        TableMargin = Frame(self.frame, width=300)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
+        table_margin = Frame(self.frame, width=300)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
                         columns=("Id", "Value", "Type"),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
         scrollbary.config(command=tree.yview)
@@ -512,11 +559,11 @@ class TablesWindow(Toplevel):
                 tree.insert("", "end", values=(row[0], row[1], row[2]))
 
     def lab_table(self, program_name):
-        TableMargin = Frame(self.frame, width=300)
-        TableMargin.pack(side=LEFT)
-        scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-        scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-        tree = Treeview(TableMargin,
+        table_margin = Frame(self.frame, width=300)
+        table_margin.pack(side=LEFT)
+        scrollbarx = Scrollbar(table_margin, orient=HORIZONTAL)
+        scrollbary = Scrollbar(table_margin, orient=VERTICAL)
+        tree = Treeview(table_margin,
                         columns=("Id", "Name"),
                         height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
         scrollbary.config(command=tree.yview)
@@ -544,12 +591,3 @@ if __name__ == "__main__":
     root.geometry("1200x600")
     root.resizable(False, False)
     root.mainloop()
-
-    # tokens = generate_tokens('./programs/program.txt')
-    # bottom_up_parser(tokens)
-    #
-    # tokens = generate_tokens('./programs/contains_error.txt')
-    # bottom_up_parser(tokens)
-    #
-    # tokens = generate_tokens('./programs/contains_errors.txt')
-    # bottom_up_parser(tokens)

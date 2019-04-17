@@ -1,0 +1,4 @@
+int i;
+float 1t;
+begin
+end

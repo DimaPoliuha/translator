@@ -1,3 +1,6 @@
+"""
+Regex patterns for lexical analyse
+"""
 regex_patterns = {
     'white_separator': r"^\s$",
     'character': r"^[A-Za-z]$",

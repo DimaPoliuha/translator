@@ -1,0 +1,9 @@
+    float a, b, c, d, e, f, sum;
+    float k, h;
+    int q;
+    int i;
+begin
+    for k = 1 by 2 to 7 do
+	a = a + 1;
+    rof;
+end
