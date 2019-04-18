@@ -422,6 +422,10 @@ class Window(Frame):
         self.run_bottom_up(silent=True)
         poliz, poliz_table = self.poliz(self.tokens)
         self.open_poliz_table(poliz_table)
+        program_name = self.lexical_analyzer.program_file_path.split('/')[-1]
+        with open('tables/' + program_name + '/poliz.txt', 'w') as f:
+            for token in poliz:
+                f.write(str(token) + ' ')
 
     def run(self, *args, **kwargs):
         self.run_lexical_analyzer(silent=True)
