@@ -1,4 +1,25 @@
-int i;
-float 1t;
+    float a, b, c, d, e, f, sum;
+    float k, h;
+    int q;
+    int i;
 begin
+    cin >> a;
+    cin >> b;
+    for k = 1 by 2 to 7 do
+	a = a + 1;
+	if a > b then
+	    a = 0;
+	fi;
+	b = 2;
+	if a == b then
+	    goto #M;
+	fi;
+	a = a + 1;
+    rof;
+	#M:
+	    cout << a << b;
+
+    for k = 1 by 2 to 7 do
+	a = a + 1;
+    rof;
 end

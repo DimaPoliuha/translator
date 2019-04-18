@@ -420,7 +420,7 @@ class Window(Frame):
 
     def run_poliz(self):
         self.run_bottom_up(silent=True)
-        poliz_table = self.poliz(self.tokens)
+        poliz, poliz_table = self.poliz(self.tokens)
         self.open_poliz_table(poliz_table)
 
     def run(self, *args, **kwargs):

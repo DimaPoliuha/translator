@@ -11,6 +11,8 @@ class Poliz:
             '[': [0, 100],
             'if': [0, 100],
             'for': [0, 100],
+            'cout': [0, 100],
+            'cin': [0, 100],
             ')': [1, 1],
             ']': [1, 1],
             'goto': [1, 1],
@@ -46,7 +48,7 @@ class Poliz:
         self.template_tags = []
         self.loop_help_flags = []
         self.get_poliz()
-        return self.poliz_table
+        return self.poliz, self.poliz_table
 
     def check_tag(self, token):
         return re.match(r'^m.+$', token)
@@ -69,6 +71,12 @@ class Poliz:
                     self.poliz_table.append([str(self.tokens), ' '.join(self.stack), str(self.poliz)])
                     break
             if curr_stack_token in ('(', '[', 'if', 'for'):
+                self.stack.pop()
+            elif curr_stack_token == 'cout':
+                self.poliz.append(TokenTemplate('OUTE'))
+                self.stack.pop()
+            elif curr_stack_token == 'cin':
+                self.poliz.append(TokenTemplate('INE'))
                 self.stack.pop()
             else:
                 self.poliz.append(self.stack.pop())
@@ -165,6 +173,10 @@ class Poliz:
                                 self.template_tags.append(tag)
                                 # self.stack.append(tag)
                                 #tags to stack
+                        elif curr_token == 'cout':
+                            self.poliz.append(TokenTemplate('OUTS'))
+                        elif curr_token == 'cin':
+                            self.poliz.append(TokenTemplate('INS'))
             elif curr_token == 'rof':
                 self.end_expression_stack_pop(curr_token)
             elif curr_token == 'fi':
