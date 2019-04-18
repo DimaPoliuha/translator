@@ -43,18 +43,20 @@ class Poliz:
         self.poliz_table = []
         self.stack = []
         self.tags = []
+        self.template_tags = []
         self.loop_help_flags = []
         self.get_poliz()
         return self.poliz_table
 
     def check_tag(self, token):
         return re.match(r'^m.+$', token)
-/ # add save start loop/if start tag and indexing
+
     def end_expression_stack_pop(self, token=None):
         if token == 'rof':
-            self.poliz.append(self.tags[-3])
+            self.poliz.append(self.template_tags[-3])
             self.poliz.append('BP')
-            self.poliz.append(self.tags[-1] + ':')
+            self.poliz.append(self.template_tags[-1] + ':')
+            del self.template_tags[-3:]
             self.poliz_table.append([str(self.tokens), ' '.join(self.stack), str(self.poliz)])
         while self.stack:
             curr_stack_token = self.stack[-1]
@@ -63,6 +65,7 @@ class Poliz:
                     break
                 elif token == 'fi':
                     self.poliz.append(TokenTemplate(self.stack.pop() + ':'))
+                    del self.template_tags[-1:]
                     self.poliz_table.append([str(self.tokens), ' '.join(self.stack), str(self.poliz)])
                     break
             if curr_stack_token in ('(', '[', 'if', 'for'):
@@ -105,12 +108,14 @@ class Poliz:
                         if curr_token == 'then':
                             tag = 'm' + str(len(self.tags))
                             self.tags.append(tag)
+                            self.template_tags.append(tag)
                             self.poliz.append(TokenTemplate(tag))
                             self.poliz.append(TokenTemplate('UPH'))
                             self.stack.append(tag)
                         elif curr_token == 'goto':
                             tag = 'm' + str(self.tokens[1])
                             self.tags.append(tag)
+                            # self.template_tags.append(tag)
                             self.poliz.append(TokenTemplate(tag))
                             self.poliz.append(TokenTemplate('BP'))
                         elif curr_token == 'by':
@@ -126,7 +131,7 @@ class Poliz:
                             self.poliz.append(TokenTemplate('='))
                             self.poliz.append(TokenTemplate(self.loop_help_flags[-2]))
                             self.poliz.append(TokenTemplate(0))
-                            self.poliz.append(TokenTemplate('='))   #TODO
+                            self.poliz.append(TokenTemplate('=='))   #= or :=
                             self.poliz.append(TokenTemplate(self.tags[-2]))
                             self.poliz.append(TokenTemplate('UPH'))
                             self.poliz.append(TokenTemplate(self.loop_variable))
@@ -157,8 +162,9 @@ class Poliz:
                             for i in range(3):
                                 tag = 'm' + str(len(self.tags))
                                 self.tags.append(tag)
+                                self.template_tags.append(tag)
                                 # self.stack.append(tag)
-                                #TODO
+                                #tags to stack
             elif curr_token == 'rof':
                 self.end_expression_stack_pop(curr_token)
             elif curr_token == 'fi':
