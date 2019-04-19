@@ -68,7 +68,7 @@ class Window(Frame):
         open_automatic_machine_table_btn.pack(side=RIGHT)
 
         open_tables_btn = Button(
-            toolbar, text="Open lexical tables", command=self.open_tables_window, bd=1, bg='white'
+            toolbar, text="Open lexical results", command=self.open_tables_window, bd=1, bg='white'
         )
         open_tables_btn.pack(side=RIGHT)
 
@@ -467,7 +467,7 @@ class Window(Frame):
 
 class TablesWindow(Toplevel):
     """
-    Recursive descent tables GUI
+    Recursive descent results GUI
     """
     def __init__(self):
         super().__init__(root)
@@ -481,9 +481,12 @@ class TablesWindow(Toplevel):
         self.show_files()
 
     def show_files(self):
-        programs = next(os.walk('./tables'))[1]
-        for program in programs:
-            Button(self, text=program, bd=1, bg='white', command=partial(self.show_tables, program)).pack(side=TOP)
+        try:
+            programs = next(os.walk('./results'))[1]
+            for program in programs:
+                Button(self, text=program, bd=1, bg='white', command=partial(self.show_tables, program)).pack(side=TOP)
+        except StopIteration:
+            messagebox.showinfo("File exception", "There is no results!")
 
     def show_tables(self, program_name):
         self.frame = Toplevel(self)
@@ -533,7 +536,7 @@ class TablesWindow(Toplevel):
         tree.column('#7', stretch=NO, minwidth=0, width=50)
         tree.pack()
 
-        with open("./tables/" + program_name + "/tokens.csv", newline="") as file:
+        with open("./results/" + program_name + "/tokens.csv", newline="") as file:
             reader = csv.reader(file)
             for row in reader:
                 tree.insert("", "end", values=(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
@@ -561,7 +564,7 @@ class TablesWindow(Toplevel):
         tree.column('#4', stretch=NO, minwidth=0, width=40)
         tree.pack()
 
-        with open("./tables/" + program_name + "/IDN.csv", newline="") as file:
+        with open("./results/" + program_name + "/IDN.csv", newline="") as file:
             reader = csv.reader(file)
             for row in reader:
                 tree.insert("", "end", values=(row[0], row[1],
@@ -589,7 +592,7 @@ class TablesWindow(Toplevel):
         tree.column('#3', stretch=NO, minwidth=0, width=40)
         tree.pack()
 
-        with open("./tables/" + program_name + "/CONST.csv", newline="") as file:
+        with open("./results/" + program_name + "/CONST.csv", newline="") as file:
             reader = csv.reader(file)
             for row in reader:
                 tree.insert("", "end", values=(row[0], row[1], row[2]))
@@ -613,7 +616,7 @@ class TablesWindow(Toplevel):
         tree.column('#2', stretch=NO, minwidth=0, width=60)
         tree.pack()
 
-        with open("./tables/" + program_name + "/LAB.csv", newline="") as file:
+        with open("./results/" + program_name + "/LAB.csv", newline="") as file:
             reader = csv.reader(file)
             for row in reader:
                 tree.insert("", "end", values=(row[0], row[1]))
