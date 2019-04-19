@@ -11,19 +11,19 @@ class PolizProcessing:
         self.run_program()
 
     def run_program(self):
-        announcements = []
+        stack = []
         for token in self.poliz:
             curr_token = str(token)
-            
+
             if curr_token == 'EA':
                 break
             if curr_token == 'int':
-                for token_identifier in announcements:
+                for token_identifier in stack:
                     self.program_file.tokens.identifiers[token_identifier.idn_id].idn_type = 'int'
-                announcements = []
+                stack = []
             elif curr_token == 'float':
-                for token_identifier in announcements:
+                for token_identifier in stack:
                     self.program_file.tokens.identifiers[token_identifier.idn_id].idn_type = 'float'
-                announcements = []
+                stack = []
             else:
-                announcements.append(token)
+                stack.append(token)
