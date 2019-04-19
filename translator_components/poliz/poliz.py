@@ -21,6 +21,8 @@ class Poliz:
             'to': [1, 1],
             'do': [1, 1],
             '=': [2, 1000],
+            'int': [2, 1000],
+            'float': [2, 1000],
             'or': [3, 3],
             'and': [4, 4],
             'not': [5, 5],
@@ -185,5 +187,8 @@ class Poliz:
             elif curr_token == ';':
                 self.end_expression_stack_pop(curr_token)
             else:
+                if curr_token == 'begin':
+                    # end announcements block
+                    self.poliz.append(TokenTemplate('EA'))
                 self.tokens.pop(0)
             self.poliz_table.append([str(self.tokens), ' '.join(self.stack), str(self.poliz)])
