@@ -576,9 +576,7 @@ class TablesWindow(Toplevel):
         with open("./results/" + program_name + "/IDN.csv", newline="") as file:
             reader = csv.reader(file)
             for row in reader:
-                tree.insert("", "end", values=(row[0], row[1],
-                                               row[2], row[3]
-                                               ))
+                tree.insert("", "end", values=(row[0], row[1], row[2], row[3]))
 
     def con_table(self, program_name):
         table_margin = Frame(self.frame, width=300)
