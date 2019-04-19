@@ -15,6 +15,7 @@ from translator_components.syntactical_analyzers.recursive_descent import Recurs
 from translator_components.syntactical_analyzers.automatic_machine import AutomaticMachine
 from translator_components.syntactical_analyzers.bottom_up import BottomUp
 from translator_components.poliz.poliz import Poliz
+from translator_components.poliz.poliz_processing import PolizProcessing
 
 
 # GUI
@@ -32,6 +33,7 @@ class Window(Frame):
         self.automatic_machine = AutomaticMachine()
         self.bottom_up = BottomUp()
         self.poliz = Poliz()
+        self.poliz_processing = PolizProcessing()
 
         # global params
         self.master = master
@@ -455,13 +457,20 @@ class Window(Frame):
         err_flag = self.run_bottom_up(silent=True)
         if not err_flag:
             self.poliz(self.program_file)
-            self.open_poliz_table(self.program_file.poliz_table)
             if not silent:
+                self.open_poliz_table(self.program_file.poliz_table)
                 self.program_file.write_results_to_files()
         return err_flag
 
+    def run_poliz_processing(self, silent=False):
+        err_flag = self.run_poliz(silent=True)
+        if not err_flag:
+            self.poliz_processing(self.program_file)
+            if not silent:
+                self.program_file.write_results_to_files()
+
     def run(self, *args, **kwargs):
-        self.run_poliz(silent=True)
+        self.run_poliz_processing(silent=True)
         self.program_file.write_results_to_files()
 
 
@@ -568,7 +577,7 @@ class TablesWindow(Toplevel):
             reader = csv.reader(file)
             for row in reader:
                 tree.insert("", "end", values=(row[0], row[1],
-                                               # row[2], row[3]
+                                               row[2], row[3]
                                                ))
 
     def con_table(self, program_name):
