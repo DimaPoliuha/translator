@@ -1,6 +1,6 @@
 import copy
 import re
-from tokens.tokens import Tokens, TokenTemplate
+from translator_components.structures.tokens import Tokens, TokenTemplate
 
 
 class Poliz:
@@ -39,8 +39,8 @@ class Poliz:
         self.loop_feature: int = ...
         self.loop_variable = ...
 
-    def __call__(self, tokens):
-        self.tokens = copy.deepcopy(tokens)
+    def __call__(self, program_file):
+        self.tokens = copy.deepcopy(program_file.tokens)
         self.poliz = Tokens()
         self.poliz_table = []
         self.stack = []
@@ -48,7 +48,8 @@ class Poliz:
         self.template_tags = []
         self.loop_help_flags = []
         self.get_poliz()
-        return self.poliz, self.poliz_table
+        program_file.poliz = self.poliz
+        program_file.poliz_table = self.poliz_table
 
     def check_tag(self, token):
         return re.match(r'^m.+$', token)

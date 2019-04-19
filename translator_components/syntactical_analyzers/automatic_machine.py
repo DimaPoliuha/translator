@@ -7,7 +7,7 @@ class AutomaticMachine:
     YOU NEED TO USE ONLY __call__ METHOD OF CLASS TO SYNTACTICAL ANALYSE
     Usage:
     syntactical_analyzer = AutomaticMachine()
-    syntactical_analyzer(tokens)
+    syntactical_analyzer(ProgramFile)
     """
     def __init__(self):
         """
@@ -94,7 +94,7 @@ class AutomaticMachine:
                 100: [None, 30, False]
             },
             30: {
-                21: [None, 28, True]
+                21: [None, 29, True]
             },
             31: {
                 100: [None, 32, False]
@@ -196,13 +196,13 @@ class AutomaticMachine:
             }
         }
     
-    def __call__(self, tokens):
+    def __call__(self, program_file):
         """
         Run all required methods
-        :param tokens:
+        :param program_file:
         :return:
         """
-        self.tokens = copy.deepcopy(tokens)
+        self.tokens = copy.deepcopy(program_file.tokens)
         self.i = 0
         self.state = 1
         self.stack = []
@@ -210,7 +210,8 @@ class AutomaticMachine:
         self.err_msg = ''
 
         self.parse()
-        return self.automatic_parse_table, self.err_msg
+        program_file.automatic_parse_table = self.automatic_parse_table
+        return self.err_msg
 
     def parse(self):
         """

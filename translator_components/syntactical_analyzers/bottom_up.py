@@ -1,6 +1,6 @@
 import csv
 import copy
-from tokens.tokens import TokenTemplate, Tokens
+from translator_components.structures.tokens import TokenTemplate, Tokens
 
 
 class BottomUp:
@@ -10,7 +10,7 @@ class BottomUp:
     YOU NEED TO USE ONLY __call__ METHOD OF CLASS TO SYNTACTICAL ANALYSE
     Usage:
     syntactical_analyzer = BottomUp()
-    syntactical_analyzer(tokens)
+    syntactical_analyzer(ProgramFile)
     """
     def __init__(self):
         """
@@ -131,18 +131,19 @@ class BottomUp:
         self.get_bottom_up_grammar_table()
         # self.write_table_to_file()
 
-    def __call__(self, tokens):
+    def __call__(self, program_file):
         """
         Run all required methods
-        :param tokens:
+        :param program_file:
         :return:
         """
-        self.tokens = copy.deepcopy(tokens)
+        self.tokens = copy.deepcopy(program_file.tokens)
         self.err_msg = ''
         self.bottom_up_table = []
         
         self.parse()
-        return self.bottom_up_table, self.err_msg
+        program_file.bottom_up_table = self.bottom_up_table
+        return self.err_msg
     
     def get_first_plus(self, index):
         """
@@ -291,7 +292,7 @@ class BottomUp:
         RUN ONLY SEPARATELY FROM self.parse
         :return:
         """
-        with open('./papers/bottom_up.csv', 'w', newline='') as f:
+        with open('./documentation/bottom_up.csv', 'w', newline='') as f:
             self.rules_array.insert(0, '')
             csv.writer(f).writerow(self.rules_array)
             for index, row in enumerate(self.bottom_up_grammar_table):

@@ -8,12 +8,13 @@ from functools import partial
 import csv
 import os
 
-from lexical_analyzer.analyzer import LexicalAnalyzer
-from tokens.tokens_identifiers import tokens_identifiers
-from syntactical_analyzers.recursive_descent import RecursiveDescent
-from syntactical_analyzers.automatic_machine import AutomaticMachine
-from syntactical_analyzers.bottom_up import BottomUp
-from poliz.poliz import Poliz
+from translator_components.structures.program_file_processing import ProgramFile
+from translator_components.structures.tokens_identifiers import tokens_identifiers
+from translator_components.lexical_analyzer.analyzer import LexicalAnalyzer
+from translator_components.syntactical_analyzers.recursive_descent import RecursiveDescent
+from translator_components.syntactical_analyzers.automatic_machine import AutomaticMachine
+from translator_components.syntactical_analyzers.bottom_up import BottomUp
+from translator_components.poliz.poliz import Poliz
 
 
 # GUI
@@ -25,6 +26,7 @@ class Window(Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
+        self.program_file = None
         self.lexical_analyzer = LexicalAnalyzer()
         self.recursive_descent = RecursiveDescent()
         self.automatic_machine = AutomaticMachine()
@@ -362,74 +364,105 @@ class Window(Frame):
     def open_tables_window():
         TablesWindow()
 
-    def run_lexical_analyzer(self, silent=False):
+    def process_input_file(self):
+        err_flag = False
         if self.file_path is None:
             text = self.text_editor.get("1.0", "end-1c")
             if text:
                 self.save_file_as()
             else:
                 self.open_file()
+
         try:
-            self.tokens = self.lexical_analyzer(self.file_path)
-        except IndexError:
-            messagebox.showinfo("Lexical analyzer exception", "Index error")
-        except Exception as err_type:
-            messagebox.showinfo("Lexical analyzer exception", str(err_type))
-        else:
-            if not silent:
-                messagebox.showinfo("Lexical analyzer", "Success!")
+            self.program_file = ProgramFile(self.file_path)
+        except OSError as err:
+            err_flag = True
+            messagebox.showinfo("Processing program file exception", str(err))
+        return err_flag
+
+    def run_lexical_analyzer(self, silent=False):
+        err_flag = self.process_input_file()
+        if not err_flag:
+            try:
+                self.tokens = self.lexical_analyzer(self.program_file)
+            except IndexError:
+                err_flag = True
+                messagebox.showinfo("Lexical analyzer exception", "Index error")
+            except Exception as err_type:
+                err_flag = True
+                messagebox.showinfo("Lexical analyzer exception", str(err_type))
+            else:
+                if not silent:
+                    messagebox.showinfo("Lexical analyzer", "Success!")
+                    self.program_file.write_results_to_files()
+        return err_flag
 
     def run_recursive_descent(self, silent=False):
-        self.run_lexical_analyzer(silent=True)
-
-        try:
-            self.recursive_descent(self.tokens)
-        except IndexError:
-            messagebox.showinfo("Recursive descent exception", "Index error (Program without 'end')")
-        except Exception as err_type:
-            messagebox.showinfo("Recursive descent exception", str(err_type))
-        else:
+        err_flag = self.run_lexical_analyzer(silent=True)
+        if not err_flag:
+            try:
+                self.recursive_descent(self.program_file)
+            except IndexError:
+                err_flag = True
+                messagebox.showinfo("Recursive descent exception", "Index error (Program without 'end')")
+            except Exception as err_type:
+                err_flag = True
+                messagebox.showinfo("Recursive descent exception", str(err_type))
+            else:
+                if not silent:
+                    messagebox.showinfo("Recursive descent", "Success!")
             if not silent:
-                messagebox.showinfo("Recursive descent", "Success!")
+                self.program_file.write_results_to_files()
+        return err_flag
 
     def run_automatic_machine(self, silent=False):
-        self.run_lexical_analyzer(silent=True)
-
-        automatic_table, msg = self.automatic_machine(self.tokens)
-        if not automatic_table:
-            messagebox.showinfo("Automatic machine exception", "Exception in state 1\nCheck begin of the program!")
-        elif not (automatic_table[-1][1] == 'end' and automatic_table[-1][0] == 8):
-            messagebox.showinfo("Automatic machine exception", 'Program without end, or incorrect last state')
-        else:
+        err_flag = self.run_lexical_analyzer(silent=True)
+        if not err_flag:
+            msg = self.automatic_machine(self.program_file)
+            if msg:
+                err_flag = True
+                messagebox.showinfo("Automatic machine exception", msg)
+            elif not self.program_file.automatic_parse_table:
+                err_flag = True
+                messagebox.showinfo("Automatic machine exception", "Exception in state 1\nCheck begin of the program!")
+            elif not (self.program_file.automatic_parse_table[-1][1] == 'end' and self.program_file.automatic_parse_table[-1][0] == 8):
+                err_flag = True
+                messagebox.showinfo("Automatic machine exception", 'Program without end, or incorrect last state')
+            else:
+                if not silent:
+                    messagebox.showinfo("Automatic machine", "Success!")
             if not silent:
-                messagebox.showinfo("Automatic machine", "Success!")
-        if not silent:
-            self.open_automatic_table(automatic_table)
+                self.open_automatic_table(self.program_file.automatic_parse_table)
+                self.program_file.write_results_to_files()
+        return err_flag
 
     def run_bottom_up(self, silent=False):
-        self.run_lexical_analyzer(silent=True)
-
-        bottom_up_parse_table, msg = self.bottom_up(self.tokens)
-        if msg:
-            messagebox.showinfo("Bottom up exception", msg)
-        else:
+        err_flag = self.run_lexical_analyzer(silent=True)
+        if not err_flag:
+            msg = self.bottom_up(self.program_file)
+            if msg:
+                err_flag = True
+                messagebox.showinfo("Bottom up exception", msg)
+            else:
+                if not silent:
+                    messagebox.showinfo("Bottom up", "Success!")
             if not silent:
-                messagebox.showinfo("Bottom up", "Success!")
-        if not silent:
-            self.open_bottom_up_parse_table(bottom_up_parse_table)
+                self.open_bottom_up_parse_table(self.program_file.bottom_up_table)
+                self.program_file.write_results_to_files()
+        return err_flag
 
-    def run_poliz(self):
-        self.run_bottom_up(silent=True)
-        poliz, poliz_table = self.poliz(self.tokens)
-        self.open_poliz_table(poliz_table)
-        program_name = self.lexical_analyzer.program_file_path.split('/')[-1]
-        with open('tables/' + program_name + '/poliz.txt', 'w') as f:
-            f.write(str(poliz))
+    def run_poliz(self, silent=False):
+        err_flag = self.run_bottom_up(silent=True)
+        if not err_flag:
+            self.poliz(self.program_file)
+            self.open_poliz_table(self.program_file.poliz_table)
+            if not silent:
+                self.program_file.write_results_to_files()
+        return err_flag
 
     def run(self, *args, **kwargs):
-        self.run_lexical_analyzer(silent=True)
-        self.run_bottom_up(silent=True)
-        self.run_poliz()
+        self.run_poliz(silent=True)
+        self.program_file.write_results_to_files()
 
 
 class TablesWindow(Toplevel):

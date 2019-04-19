@@ -7,7 +7,7 @@ class RecursiveDescent:
     YOU NEED TO USE ONLY __call__ METHOD OF CLASS TO SYNTACTICAL ANALYSE
     Usage:
     syntactical_analyzer = RecursiveDescent()
-    syntactical_analyzer(tokens)
+    syntactical_analyzer(ProgramFile)
     """
     def __init__(self):
         """
@@ -16,13 +16,13 @@ class RecursiveDescent:
         self.i: int = ...
         self.relation_signs = [">", "<", ">=", "<=", "==", "!="]
 
-    def __call__(self, tokens):
+    def __call__(self, program_file):
         """
         Run all required methods
-        :param tokens:
+        :param program_file:
         :return:
         """
-        self.tokens = copy.deepcopy(tokens)
+        self.tokens = copy.deepcopy(program_file.tokens)
         self.i = 0
         self.program()
     

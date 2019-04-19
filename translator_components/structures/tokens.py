@@ -1,4 +1,4 @@
-from tokens.tokens_identifiers import tokens_identifiers, tokens_identifiers_reversed
+from translator_components.structures.tokens_identifiers import tokens_identifiers, tokens_identifiers_reversed
 
 
 class TokenTemplate:

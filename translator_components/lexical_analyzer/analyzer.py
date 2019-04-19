@@ -1,9 +1,7 @@
 import re
-import csv
-import os
 
-from lexical_analyzer.regex_patterns import regex_patterns
-from tokens.tokens import *
+from translator_components.lexical_analyzer.regex_patterns import regex_patterns
+from translator_components.structures.tokens import *
 
 
 class LexicalAnalyzer:
@@ -12,13 +10,12 @@ class LexicalAnalyzer:
     YOU NEED TO USE ONLY __call__ METHOD OF CLASS TO LEXICAL ANALYSE
     Usage:
     lexical_analyzer = LexicalAnalyzer()
-    tokens = lexical_analyzer(program_file_path + program_file_name)
+    tokens = lexical_analyzer(ProgramFile)
     """
     def __init__(self):
         """
         Initialise all attributes
         """
-        self.program: list = ...
         self.announcements_block: bool = ...
         self.has_to_read: bool = ...
         self.state: int = ...
@@ -27,18 +24,17 @@ class LexicalAnalyzer:
         self.token: str = ...
         self.char: str = ...
         self.tokens: Tokens = ...
+        self.program = ...
+        self.err_msg: str = ...
 
-    def __call__(self, program_file_path):
+    def __call__(self, program_file):
         """
         Run all required methods
-        :param program_file_path:
+        :param program_file:
         :return:
         """
-        self.root_dir = './'
-        self.tables_path = self.root_dir + 'tables/'
-        self.program_file_path = program_file_path
-        self.program_file_name = self.program_file_path.split('/')[-1]
-        self.program = None
+        self.program_file = program_file
+        self.program = self.program_file.program_text
         self.announcements_block = True
         self.line = 0
         self.token = ''
@@ -47,12 +43,10 @@ class LexicalAnalyzer:
         self.has_to_read = False
         self.char = ''
         self.tokens = Tokens()
+        self.err_msg = ''
 
-        self.read_program_from_file()
-        self.create_tables_dir()
         self.generate_tokens()
-        self.write_tables_to_files()
-        return self.tokens
+        self.program_file.tokens = self.tokens
 
     def raise_exception(self, msg=None):
         """
@@ -61,7 +55,7 @@ class LexicalAnalyzer:
         :return:
         """
         err = self.token if self.token else self.program[self.line][self.i]
-        self.write_tables_to_files()
+        self.program_file.tokens = self.tokens
         raise Exception(('line: {}\n'
                          'position: {}\n'
                          'token: {}\n\n'
@@ -72,86 +66,6 @@ class LexicalAnalyzer:
                                 repr(err),
                                 msg
         ))
-
-    def read_program_from_file(self):
-        """
-        Function, thar reads program text from input .txt file
-        :return:
-        """
-        with open(self.program_file_path, 'r') as f:
-            self.program = [row.strip(' ') for row in f]
-
-    def write_tokens_to_file(self):
-        """
-        Function, that writes tokens to output file
-        :return:
-        """
-        with open(self.tables_path + self.program_file_name + '/tokens.csv', 'w', newline='') as f:
-            for token in self.tokens:
-                csv.writer(f).writerow([
-                    token.count, token.line_number, token.token,
-                    token.idn_id, token.con_id, token.lab_id, token.token_id
-                ])
-
-    def write_idns_to_file(self):
-        """
-        Function, that writes identifiers to output file
-        :return:
-        """
-        with open(self.tables_path + self.program_file_name + '/IDN.csv', 'w', newline='') as f:
-            for identifier in self.tokens.identifiers:
-                csv.writer(f).writerow([
-                    identifier.count, identifier.token, identifier.value, identifier.idn_type
-                ])
-
-    def write_cons_to_file(self):
-        """
-        Function, that writes identifiers to output file
-        :return:
-        """
-        with open(self.tables_path + self.program_file_name + '/CONST.csv', 'w', newline='') as f:
-            for const in self.tokens.constants:
-                csv.writer(f).writerow([
-                    const.count, const.token, const.con_type
-                ])
-
-    def write_labs_to_file(self):
-        """
-        Function, that writes labels to output file
-        :return:
-        """
-        with open(self.tables_path + self.program_file_name + '/LAB.csv', 'w', newline='') as f:
-            for label in self.tokens.labels:
-                csv.writer(f).writerow([
-                    label.count, label.token
-                ])
-
-    def write_tables_to_files(self):
-        """
-        Function, that runs all functions, that writes to files
-        :return:
-        """
-        self.write_tokens_to_file()
-        self.write_idns_to_file()
-        self.write_cons_to_file()
-        self.write_labs_to_file()
-
-    def create_tables_dir(self):
-        """
-        Function, that creates directory for output tables
-        :return:
-        """
-        program_tables_path = self.tables_path + self.program_file_name
-        if not os.path.isdir(self.tables_path):
-            try:
-                os.mkdir(self.tables_path)
-            except OSError:
-                self.raise_exception("Creation of the directory %s failed" % self.tables_path)
-        if not os.path.isdir(program_tables_path):
-            try:
-                os.mkdir(program_tables_path)
-            except OSError:
-                self.raise_exception("Creation of the directory %s failed" % program_tables_path)
 
     def add_token(self, token_type=None):
         """
