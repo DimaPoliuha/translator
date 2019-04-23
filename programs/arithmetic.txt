@@ -2,5 +2,6 @@
     int q;
     int i;
 begin
-    sum = a * (-b + c);
+    cin >> a;
+    sum = a * (-6 + 423);
 end
