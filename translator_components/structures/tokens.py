@@ -6,6 +6,9 @@ class TokenTemplate:
     Base class for tokens
     """
     def __init__(self, token):
+        self.idn_id = ''
+        self.con_id = ''
+        self.lab_id = ''
         self.token = token
 
     def __str__(self):

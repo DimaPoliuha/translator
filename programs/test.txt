@@ -3,23 +3,30 @@
     int q;
     int i;
 begin
+    q = 19;
+    cout << q;
     cin >> a;
     cin >> b;
+	q = a;
+	sum = - a + b + 1 - 78;
+	cout << sum;
     for k = 1 by 2 to 7 do
-	a = a + 1;
-	if a > b then
-	    a = 0;
-	fi;
-	b = 2;
-	if a == b then
-	    goto #M;
-	fi;
-	a = a + 1;
+        a = a + 1;
+        if a > b then
+            a = 0;
+        fi;
+        b = 2;
+        if a == b and b == a then
+            goto #M;
+        fi;
+        a = -a + 1;
+        b = -9.5;
     rof;
 	#M:
 	    cout << a << b;
 
     for k = 1 by 2 to 7 do
-	a = a + 1;
+	    a = a + 1;
     rof;
+    cout << q;
 end
