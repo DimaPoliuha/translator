@@ -5,13 +5,15 @@ begin
     q = 56;
     a = 1.2;
     d = .7;
+    cout << q << a << d;
     if a > 1 and q < 50 then
         goto #f;
+        cout << a << a << a << a << a;
     fi;
     a = (q + a + d) / 100;
+    cout << d << d << d << d << d;
+    cout << a;
     #f:
         sum = a / d + 1.2 * q;
-    for i = 20 by 1 to 30 do
-        cout << i;
-    rof;
+        cout << sum;
 end

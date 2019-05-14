@@ -1,5 +1,6 @@
 import copy
-from translator_components.structures.tokens import Token
+import re
+from translator_components.structures.tokens import Token, TokenTemplate
 
 
 class PolizProcessing:
@@ -31,8 +32,19 @@ class PolizProcessing:
         self.poliz = copy.deepcopy(self.program_file.poliz)
         self.run_program()
 
+    def check_tag(self, token):
+        if re.match(r'^m#.+:$', token):
+            return 'start_user_tag'
+        elif re.match(r'^m#.+$', token):
+            return 'user_tag'
+        elif re.match(r'^m.+:$', token):
+            return 'start_tag'
+        elif re.match(r'^m.+$', token):
+            return 'tag'
+        else:
+            raise Exception('Tag error')
+
     def get_operand(self, operand):
-        # print(operand, type(operand))
         if type(operand) is Token:
             if not operand.idn_id == '':
                 var_name = str(operand)
@@ -62,9 +74,16 @@ class PolizProcessing:
         token_out = False
         token_in = False
         announcement_block = True
+        pass_code = False
+        pass_to_label = None
 
         for i, token in enumerate(self.poliz):
             curr_token = str(token)
+            # print(curr_token)
+            if pass_code:
+                if pass_to_label == curr_token[:-1]:
+                    pass_code = False
+                continue
 
             if announcement_block:
                 if curr_token == 'EA':
@@ -124,15 +143,23 @@ class PolizProcessing:
                 else:
                     raise TypeError('strange type of identifier')
             else:
-                # cin
-                if curr_token == 'INS':
-                    token_in = True
-
-                # cout
-                if curr_token == 'OUTS':
-                    token_out = True
-
-                if curr_token in self.op_1:
+                if curr_token in self.poliz_auxiliary:
+                    # cin
+                    if curr_token == 'INS':
+                        token_in = True
+                    # cout
+                    elif curr_token == 'OUTS':
+                        token_out = True
+                    elif curr_token == 'BP':
+                        pass_code = True
+                        pass_to_label = stack.pop()
+                    elif curr_token == 'UPH':
+                        pass_to_label = stack.pop()
+                        if stack.pop() is False:
+                            pass_code = True
+                    else:
+                        print('poliz_auxiliary', curr_token)
+                elif curr_token in self.op_1:
                     operand = self.get_operand(stack.pop())
                     result = self.op_1[curr_token](operand)
                     stack.append(result)
@@ -142,13 +169,30 @@ class PolizProcessing:
                     result = self.op_2[curr_token](operand_l, operand_r)
                     stack.append(result)
                 else:
-                    if type(token) is not str:
+                    if type(token) is Token:
                         if not token.idn_id == '':
                             stack.append(token)
                         elif not token.con_id == '':
                             stack.append(self.program_file.tokens.constants[token.con_id].token)
+                    elif type(token) is TokenTemplate:
+                        stack.append(curr_token)
+
+                        # tag_flag = self.check_tag(curr_token)
+                        # if tag_flag == 'tag' and stack.pop() is False:
+                        #     pass_code = True
+                        #     pass_to_label = curr_token
+                        # elif tag_flag == 'user_tag':
+                        #     pass_code = True
+                        #     pass_to_label = curr_token
+                        # elif tag_flag == 'start_tag':
+                        #     pass
+                        # elif tag_flag == 'start_user_tag':
+                        #     pass
+
                     elif curr_token not in self.poliz_auxiliary:
                         print('WARNING |STRANGE TOKEN| =>', repr(curr_token))
-                        stack.append(token)
+                        # stack.append(token)
+                    else:
+                        raise Exception('Unknown error')
 
-        print(stack)
+            print(stack)
