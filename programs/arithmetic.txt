@@ -2,6 +2,9 @@
     int q;
     int i;
 begin
-    cin >> a;
-    sum = a * (-6 + 423);
+    cin >> i;
+    sum = 6 * (-i + 42.3);
+    i = 5;
+    cout << i;
+    cout << sum;
 end
