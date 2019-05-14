@@ -1,7 +1,7 @@
 import copy
 import re
 import tkinter
-from tkinter import simpledialog
+from tkinter import simpledialog, messagebox
 from translator_components.structures.tokens import Token, TokenTemplate
 
 
@@ -78,6 +78,7 @@ class PolizProcessing:
         pass_code = False
         pass_to_label = None
         first_run = True
+        output_arr = []
 
         while pass_code or first_run:
             first_run = False
@@ -134,7 +135,9 @@ class PolizProcessing:
                     if curr_token == 'OUTE':
                         token_out = False
                         continue
-                    print('{} = {}'.format(token, str(self.program_file.tokens.identifiers[token.idn_id].value)))
+                    output = '{} = {}'.format(token, str(self.program_file.tokens.identifiers[token.idn_id].value))
+                    output_arr.append(output)
+                    print(output)
                 elif curr_token == '=':
                     operand_r = self.get_operand(stack.pop())
                     operand_l = stack.pop()
@@ -194,3 +197,4 @@ class PolizProcessing:
                         else:
                             raise Exception('Unknown error')
                 # print(stack)
+        messagebox.showinfo('Code output', '\n'.join(output_arr))
