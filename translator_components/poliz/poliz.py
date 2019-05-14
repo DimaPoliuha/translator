@@ -52,15 +52,16 @@ class Poliz:
         self.get_poliz()
         program_file.poliz = self.poliz
         program_file.poliz_table = self.poliz_table
+        program_file.loop_help_flags = self.loop_help_flags
 
     def check_tag(self, token):
         return re.match(r'^m.+$', token)
 
     def end_expression_stack_pop(self, token=None):
         if token == 'rof':
-            self.poliz.append(self.template_tags[-3])
-            self.poliz.append('BP')
-            self.poliz.append(self.template_tags[-1] + ':')
+            self.poliz.append(TokenTemplate(self.template_tags[-3]))
+            self.poliz.append(TokenTemplate('BP'))
+            self.poliz.append(TokenTemplate(self.template_tags[-1] + ':'))
             del self.template_tags[-3:]
             self.poliz_table.append([str(self.tokens), ' '.join(self.stack), str(self.poliz)])
         while self.stack:
@@ -145,8 +146,8 @@ class Poliz:
                             self.poliz.append(TokenTemplate('=='))   #= or :=
                             self.poliz.append(TokenTemplate(self.tags[-2]))
                             self.poliz.append(TokenTemplate('UPH'))
-                            self.poliz.append(TokenTemplate(self.loop_variable))
-                            self.poliz.append(TokenTemplate(self.loop_variable))
+                            self.poliz.append(self.loop_variable)
+                            self.poliz.append(self.loop_variable)
                             self.poliz.append(TokenTemplate(self.loop_help_flags[-1]))
                             self.poliz.append(TokenTemplate('+'))
                             self.poliz.append(TokenTemplate('='))
@@ -154,7 +155,7 @@ class Poliz:
                             self.poliz.append(TokenTemplate(self.loop_help_flags[-2]))
                             self.poliz.append(TokenTemplate(0))
                             self.poliz.append(TokenTemplate('='))
-                            self.poliz.append(TokenTemplate(self.loop_variable))
+                            self.poliz.append(self.loop_variable)
                         elif curr_token == 'do':
                             self.poliz.append(TokenTemplate('-'))
                             self.poliz.append(TokenTemplate(self.loop_help_flags[-1]))

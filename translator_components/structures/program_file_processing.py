@@ -14,6 +14,7 @@ class ProgramFile:
         self.bottom_up_table = None
         self.poliz = None
         self.poliz_table = None
+        self.loop_help_flags = None
 
     def read_program_from_file(self):
         """

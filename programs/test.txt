@@ -7,7 +7,8 @@ begin
     cout << q;
     cin >> a;
     cin >> b;
-	q = a;
+    cout << a << b;
+	f = a;
 	sum = - a + b + 1 - 78;
 	cout << sum;
     for k = 1 by 2 to 7 do
@@ -21,6 +22,7 @@ begin
         fi;
         a = -a + 1;
         b = -9.5;
+        q = q + 1;
     rof;
 	#M:
 	    cout << a << b;
