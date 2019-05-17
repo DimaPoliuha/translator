@@ -471,7 +471,10 @@ class Window(Frame):
 
     def run(self, *args, **kwargs):
         self.run_poliz_processing(silent=True)
-        self.program_file.write_results_to_files()
+        try:
+            self.program_file.write_results_to_files()
+        except Exception as err_type:
+            messagebox.showinfo("Running exception", str(err_type))
 
 
 class TablesWindow(Toplevel):
