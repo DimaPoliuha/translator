@@ -1,6 +1,5 @@
 import copy
 import re
-import tkinter
 from tkinter import simpledialog, messagebox
 from translator_components.structures.tokens import Token, TokenTemplate
 
