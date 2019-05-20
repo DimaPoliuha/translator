@@ -458,6 +458,7 @@ class Window(Frame):
         if not err_flag:
             self.poliz(self.program_file)
             if not silent:
+                messagebox.showinfo("Poliz", "Success!")
                 self.open_poliz_table(self.program_file.poliz_table)
                 self.program_file.write_results_to_files()
         return err_flag
